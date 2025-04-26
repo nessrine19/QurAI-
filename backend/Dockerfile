@@ -19,6 +19,8 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 
 # Install dependencies
+RUN poetry lock
+
 RUN poetry install
 
 # Expose port

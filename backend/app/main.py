@@ -8,8 +8,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from .models.patient import Patient, PatientCSV, CareSpecialist, CareSpecialistBase, PatientResponse
 from .database import get_db, Base, engine
+from .migrations import init_db, check_tables_exist
 from typing import List, Dict, Set
 from pydantic import BaseModel
+
+# Initialize database tables
+if not check_tables_exist():
+    print("Tables do not exist, creating them...")
+    init_db()
 
 app = FastAPI(
     title="QurAI API",
