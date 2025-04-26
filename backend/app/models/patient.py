@@ -3,25 +3,25 @@ from sqlalchemy.orm import relationship
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date, datetime
-from app.security.encryption import EncryptedString
-from app.database import Base
+from sqlalchemy.sql import func
+from ..database import Base
 
 class CareSpecialist(Base):
     __tablename__ = "care_specialists"
 
-    id = Column(Integer, primary_key=True, index=True)
-    specialist_id = Column(String, unique=True, index=True)
+    specialist_id = Column(String, primary_key=True, index=True)
     first_name = Column(String)
     last_name = Column(String)
-    email = Column(String, unique=True, index=True)
+    email = Column(String)
     specialization = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     patients = relationship("Patient", back_populates="care_specialist")
 
 class Patient(Base):
     __tablename__ = "patients"
 
-    id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(String, index=True)
+    patient_id = Column(String, primary_key=True, index=True)
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(Date)
@@ -29,12 +29,13 @@ class Patient(Base):
     diagnosis = Column(String)
     tumor_location = Column(String)
     tumor_stage = Column(String)
-    treatment_plan = Column(Text)
-    notes = Column(Text)
-    care_specialist_id = Column(String, ForeignKey("care_specialists.specialist_id"))
-    treatment_cycle = Column(Integer, default=1)
+    treatment_plan = Column(String)
+    notes = Column(String)
+    specialist_id = Column(String, ForeignKey("care_specialists.specialist_id"))
     biomarkers = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    treatment_cycle = Column(Integer, default=1)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     care_specialist = relationship("CareSpecialist", back_populates="patients")
 

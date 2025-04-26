@@ -25,9 +25,8 @@ app = FastAPI(
     - Care specialist management
     - Treatment cycle tracking
     - Patient classification and outcome prediction
-    - Secure data handling with encryption
     
-    The system uses PostgreSQL for data storage and includes encryption for sensitive patient information.
+    The system uses PostgreSQL for data storage.
     """,
     version="1.0.0",
     contact={
@@ -91,27 +90,20 @@ async def create_care_specialist(care_specialist: CareSpecialistBase, db: Sessio
     existing_specialist = db.query(CareSpecialist).filter(
         CareSpecialist.specialist_id == care_specialist.specialist_id
     ).first()
+    
     if existing_specialist:
         raise HTTPException(
             status_code=400,
             detail=f"Care specialist with ID {care_specialist.specialist_id} already exists"
         )
-
-    try:
-        db_care_specialist = CareSpecialist(
-            specialist_id=care_specialist.specialist_id,
-            first_name=care_specialist.first_name,
-            last_name=care_specialist.last_name,
-            email=care_specialist.email,
-            specialization=care_specialist.specialization
-        )
-        db.add(db_care_specialist)
-        db.commit()
-        db.refresh(db_care_specialist)
-        return db_care_specialist
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+    
+    # Create new care specialist
+    db_specialist = CareSpecialist(**care_specialist.dict())
+    db.add(db_specialist)
+    db.commit()
+    db.refresh(db_specialist)
+    
+    return db_specialist
 
 @app.get("/care-specialists/{specialist_id}/patients", response_model=List[PatientResponse], tags=["Care Specialists"])
 async def get_care_specialist_patients(specialist_id: str, db: Session = Depends(get_db)):
@@ -130,18 +122,10 @@ async def get_care_specialist_patients(specialist_id: str, db: Session = Depends
     # First get the care specialist
     care_specialist = db.query(CareSpecialist).filter(CareSpecialist.specialist_id == specialist_id).first()
     if not care_specialist:
-        raise HTTPException(status_code=404, detail="Care specialist not found")
+        raise HTTPException(status_code=404, detail=f"Care specialist with ID {specialist_id} not found")
     
-    # Get all patients for this care specialist
-    patients = db.query(Patient).filter(
-        Patient.care_specialist_id == specialist_id
-    ).order_by(
-        Patient.patient_id,
-        desc(Patient.created_at)
-    ).distinct(
-        Patient.patient_id
-    ).all()
-    
+    # Get all patients for this specialist
+    patients = db.query(Patient).filter(Patient.specialist_id == specialist_id).all()
     return patients
 
 @app.get("/patients/{patient_id}", response_model=PatientResponse, tags=["Patients"])
@@ -161,12 +145,10 @@ async def get_patient(patient_id: str, db: Session = Depends(get_db)):
     # Get the latest record for the patient
     patient = db.query(Patient).filter(
         Patient.patient_id == patient_id
-    ).order_by(
-        desc(Patient.created_at)
-    ).first()
+    ).order_by(desc(Patient.created_at)).first()
     
     if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+        raise HTTPException(status_code=404, detail=f"Patient with ID {patient_id} not found")
     
     return patient
 
@@ -201,119 +183,68 @@ async def upload_patients_csv(file: UploadFile = File(...), db: Session = Depend
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="File must be a CSV")
     
+    # Read and parse the CSV file
+    contents = await file.read()
     try:
-        # Read the CSV file
-        contents = await file.read()
-        csv_file = io.StringIO(contents.decode('utf-8'))
-        csv_reader = csv.DictReader(csv_file)
+        csv_data = io.StringIO(contents.decode('utf-8'))
+        reader = csv.DictReader(csv_data)
         
-        # Track patient IDs in this upload to detect duplicates
-        seen_patient_ids: Set[str] = set()
-        patients_to_add = []
+        # Track processed patient IDs to detect duplicates
+        processed_patient_ids = set()
+        patients_processed = 0
         
-        # Process each row
-        for row in csv_reader:
+        for row in reader:
             try:
-                # Convert the row to a PatientCSV model
-                patient_data = PatientCSV(**row)
+                # Convert date string to datetime
+                date_of_birth = datetime.strptime(row['date_of_birth'], '%Y-%m-%d').date()
                 
-                # Check for duplicates in this upload
-                if patient_data.patient_id in seen_patient_ids:
+                # Create patient data dictionary
+                patient_data = {
+                    'patient_id': row['patient_id'],
+                    'first_name': row['first_name'],
+                    'last_name': row['last_name'],
+                    'date_of_birth': date_of_birth,
+                    'gender': row['gender'],
+                    'diagnosis': row['diagnosis'],
+                    'tumor_location': row['tumor_location'],
+                    'tumor_stage': row['tumor_stage'],
+                    'treatment_plan': row['treatment_plan'],
+                    'notes': row['notes'],
+                    'specialist_id': row['specialist_id'],
+                    'biomarkers': row['biomarkers'],
+                    'treatment_cycle': 1  # Initialize treatment cycle
+                }
+                
+                # Check for duplicate patient ID
+                if patient_data['patient_id'] in processed_patient_ids:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Duplicate patient ID {patient_data.patient_id} found in the same upload"
-                    )
-                seen_patient_ids.add(patient_data.patient_id)
-                
-                # Get the care specialist
-                care_specialist = db.query(CareSpecialist).filter(
-                    CareSpecialist.specialist_id == patient_data.specialist_id
-                ).first()
-                
-                if not care_specialist:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Care specialist with ID {patient_data.specialist_id} not found"
+                        detail=f"Duplicate patient ID found: {patient_data['patient_id']}"
                     )
                 
-                try:
-                    # Convert date string to date object
-                    date_of_birth = datetime.strptime(patient_data.date_of_birth, "%Y-%m-%d").date()
-                except ValueError:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Invalid date format for patient {patient_data.patient_id}. Use YYYY-MM-DD format."
-                    )
+                # Create and save patient
+                patient = Patient(**patient_data)
+                db.add(patient)
+                processed_patient_ids.add(patient_data['patient_id'])
+                patients_processed += 1
                 
-                # Get the latest treatment cycle for this patient
-                latest_patient = db.query(Patient).filter(
-                    Patient.patient_id == patient_data.patient_id
-                ).order_by(
-                    desc(Patient.created_at)
-                ).first()
-                
-                # Calculate next treatment cycle
-                next_cycle = 1
-                if latest_patient:
-                    next_cycle = latest_patient.treatment_cycle + 1
-                
-                # Create database model instance
-                db_patient = Patient(
-                    patient_id=patient_data.patient_id,
-                    first_name=patient_data.first_name,
-                    last_name=patient_data.last_name,
-                    date_of_birth=date_of_birth,
-                    gender=patient_data.gender,
-                    diagnosis=patient_data.diagnosis,
-                    tumor_location=patient_data.tumor_location,
-                    tumor_stage=patient_data.tumor_stage,
-                    treatment_plan=patient_data.treatment_plan,
-                    notes=patient_data.notes,
-                    care_specialist_id=patient_data.specialist_id,
-                    treatment_cycle=next_cycle,
-                    biomarkers=patient_data.biomarkers
-                )
-                
-                patients_to_add.append(db_patient)
-                
-            except HTTPException as he:
-                db.rollback()
-                raise he
-            except Exception as e:
-                db.rollback()
+            except ValueError as e:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid data in row: {row}. Error: {str(e)}"
+                    detail=f"Invalid data format in row: {str(e)}"
                 )
         
-        try:
-            # Add all patients to database
-            for patient in patients_to_add:
-                db.add(patient)
-            
-            # Commit all changes
-            db.commit()
-            
-            return JSONResponse(
-                content={
-                    "message": f"Successfully processed and stored {len(patients_to_add)} patients",
-                    "patients_processed": len(patients_to_add)
-                }
-            )
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(
-                status_code=400,
-                detail=f"Error saving patients to database: {str(e)}"
-            )
-    
-    except HTTPException as he:
-        raise he
-    except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Error processing file: {str(e)}"
+        db.commit()
+        return JSONResponse(
+            content={
+                "message": "Patients uploaded successfully",
+                "patients_processed": patients_processed
+            }
         )
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
 class ClassificationResult(BaseModel):
     """
@@ -346,11 +277,12 @@ def preprocess_patient_data(patient: Patient) -> Dict:
             - biomarkers: Biomarker information
     """
     # In reality, this would do feature engineering, normalization, etc.
+    # For now, we'll just return some basic features
     return {
-        "age": (datetime.now().date() - patient.date_of_birth).days / 365,
-        "treatment_cycle": patient.treatment_cycle,
-        "tumor_stage": patient.tumor_stage,
-        "biomarkers": patient.biomarkers
+        'age': (datetime.now().date() - patient.date_of_birth).days // 365,
+        'treatment_cycle': patient.treatment_cycle,
+        'tumor_stage': patient.tumor_stage,
+        'biomarkers': patient.biomarkers
     }
 
 def predict_classification(preprocessed_data: Dict) -> Dict[str, float]:
@@ -372,12 +304,12 @@ def predict_classification(preprocessed_data: Dict) -> Dict[str, float]:
             - progressive_disease: Probability of progressive disease
     """
     # In reality, this would use a trained ML model
-    # For now, return dummy probabilities
+    # For now, we'll return dummy probabilities
     return {
-        "complete_remission": 0.6,
-        "partial_remission": 0.3,
-        "stable_disease": 0.1,
-        "progressive_disease": 0.0
+        'complete_remission': 0.3,
+        'partial_remission': 0.4,
+        'stable_disease': 0.2,
+        'progressive_disease': 0.1
     }
 
 @app.get("/patients/{patient_id}/classify", response_model=ClassificationResult, tags=["Classification"])
@@ -406,25 +338,23 @@ async def classify_patient(patient_id: str, db: Session = Depends(get_db)):
     # Get the latest record for the patient
     patient = db.query(Patient).filter(
         Patient.patient_id == patient_id
-    ).order_by(
-        desc(Patient.created_at)
-    ).first()
+    ).order_by(desc(Patient.created_at)).first()
     
     if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+        raise HTTPException(status_code=404, detail=f"Patient with ID {patient_id} not found")
     
     try:
         # Preprocess the patient data
         preprocessed_data = preprocess_patient_data(patient)
         
-        # Get classification predictions
+        # Get the classification predictions
         classifications = predict_classification(preprocessed_data)
         
-        # Calculate confidence (dummy implementation)
+        # Calculate confidence (in reality, this would come from the model)
         confidence = max(classifications.values())
         
         return ClassificationResult(
-            patient_id=patient.patient_id,
+            patient_id=patient_id,
             classifications=classifications,
             confidence=confidence
         )

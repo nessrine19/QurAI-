@@ -4,11 +4,10 @@ This is the backend service for the QurAI application, a cancer treatment optimi
 
 ## Features
 
-- Patient data management with encryption
+- Patient data management
 - Care specialist management
 - Treatment cycle tracking
 - Patient classification and outcome prediction
-- Secure data handling
 - RESTful API endpoints
 
 ## Prerequisites
@@ -97,7 +96,6 @@ poetry install
      ```
      DATABASE_URL=postgresql://postgres:your_password@localhost:5432/qurai_db
      TEST_DATABASE_URL=postgresql://postgres:your_password@localhost:5432/qurai_test_db
-     ENCRYPTION_KEY=your_32_character_encryption_key
      ```
 
    For Windows, you can create the `.env` file using Notepad or any text editor.
@@ -174,13 +172,6 @@ poetry run pytest tests/ -v
 - `specialization`: Area of medical specialization
 - `created_at`: Record creation timestamp
 - `updated_at`: Record update timestamp
-
-## Security Features
-
-- Data encryption for sensitive patient information
-- Secure API endpoints
-- Input validation
-- Error handling
 
 ## Contributing
 
