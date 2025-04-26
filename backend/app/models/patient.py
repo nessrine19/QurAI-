@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 from sqlalchemy.sql import func
@@ -51,6 +51,8 @@ class CareSpecialistBase(BaseModel):
         orm_mode = True
 
 class PatientCSV(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     patient_id: str
     first_name: str
     last_name: str
@@ -65,10 +67,9 @@ class PatientCSV(BaseModel):
     biomarkers: Optional[str] = None
     treatment_cycle: Optional[int] = None
 
-    class Config:
-        orm_mode = True
-
 class PatientResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     patient_id: str
     first_name: str
     last_name: str
@@ -83,7 +84,4 @@ class PatientResponse(BaseModel):
     biomarkers: Optional[str] = None
     treatment_cycle: int
     created_at: datetime
-    updated_at: Optional[datetime] = None
-
-    class Config:
-        orm_mode = True 
+    updated_at: Optional[datetime] = None 
