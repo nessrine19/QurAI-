@@ -1,6 +1,0 @@
-patient_id,first_name,last_name,date_of_birth,gender,diagnosis,tumor_location,tumor_stage,treatment_plan,notes,specialist_id,biomarkers
-P001,John,Doe,1980-05-15,Male,Lung Cancer,Right Upper Lobe,IIIB,Radiation Therapy + Chemotherapy,No allergies,CS001,EGFR+
-P002,Jane,Smith,1975-08-22,Female,Breast Cancer,Left Breast,IIA,Chemotherapy + Surgery,History of hypertension,CS001,HER2+
-P003,Robert,Johnson,1990-03-10,Male,Colon Cancer,Descending Colon,III,Chemotherapy + Surgery,Family history of cancer,CS002,KRAS-
-P004,Emily,Davis,1985-11-30,Female,Ovarian Cancer,Right Ovary,IIIC,Chemotherapy + Surgery,Previous treatment in 2020,CS002,BRCA1+
-P005,Michael,Brown,1972-07-18,Male,Prostate Cancer,Prostate,II,Radiation Therapy,Diabetes type 2,CS003,PSA+ 
