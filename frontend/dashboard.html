@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QurAI - Treatment Dashboard</title>
+    <style>
+        /* Base styles and reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+            background-color: #0a0a1a;
+            color: #fff;
+        }
+        
+        /* Navbar styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            margin-right: auto;
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-button {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #a9c2ff;
+            border: 1px solid #667eea;
+        }
+        
+        .register-btn {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(86, 102, 193, 0.2);
+        }
+
+        /* Plexus background */
+        #plexus-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Main container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #c8d4ff;
+            max-width: 800px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(15, 15, 36, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 2rem;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #8E54E9;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .upload-text {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-text h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #a9c2ff;
+        }
+
+        .upload-text p {
+            color: #7f8ea3;
+            font-size: 0.95rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #a9c2ff;
+            border: 2px solid #667eea;
+            box-shadow: 0 4px 12px rgba(105, 120, 209, 0.15);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(86, 102, 193, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5985ff, #a171ff);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #fff;
+        }
+
+        /* Results area (hidden by default) */
+        #results-section {
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(25, 25, 50, 0.5);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label {
+            color: #a9c2ff;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .stat-sub {
+            color: #7f8ea3;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Chart containers */
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        /* Progress tracker */
+        .progress-container {
+            margin-top: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+
+        .progress-stats {
+            color: #7f8ea3;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .progress-sessions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .session-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .session-dot.completed {
+            background: #4facfe;
+        }
+
+        .session-dot.current {
+            background: #a45deb;
+            box-shadow: 0 0 10px #a45deb;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #667eea;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+            
+            .upload-text h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Plexus Background Canvas -->
+    <canvas id="plexus-background"></canvas>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" style="text-decoration: none;">
+            <div class="logo">QurAI</div>
+        </a>
+        <div class="nav-auth">
+            <button class="nav-button login-btn">Dr. Smith</button>
+            <button class="nav-button register-btn">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Quantum Radiotherapy Optimization</h1>
+            <p>Upload patient data to generate personalized treatment plans with optimized dosage distribution using our quantum computing technology.</p>
+        </div>
+        
+        <!-- File Upload Card -->
+        <div class="card" id="upload-card">
+            <div class="card-header">
+                <h2 class="card-title">Patient Data Upload</h2>
+            </div>
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">
+                    <h3>Drag and drop your CSV file</h3>
+                    <p>Or click to browse from your computer</p>
+                </div>
+                <input type="file" id="file-input" class="file-input" accept=".csv">
+                <button class="btn btn-primary" id="upload-btn">Select Patient Data</button>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner (Initially Hidden) -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing data with quantum algorithms...</p>
+        </div>
+        
+        <!-- Results Section (Initially Hidden) -->
+        <div id="results-section">
+            <!-- Results Overview Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Treatment Overview</h2>
+                    <button class="btn btn-secondary" id="save-btn">Export Results</button>
+                </div>
+                <div class="results-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Optimal Dosage</div>
+                        <div class="stat-value" id="dosage-value">2.4 Gy</div>
+                        <div class="stat-sub">Per Session</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Sessions</div>
+                        <div class="stat-value" id="sessions-value">12</div>
+                        <div class="stat-sub">Recommended</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Dosage</div>
+                        <div class="stat-value" id="total-dosage-value">28.8 Gy</div>
+                        <div class="stat-sub">Calculated Optimal</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dosage Graph -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Dosage Distribution</h2>
+                </div>
+                <div class="chart-container" id="dosage-chart"></div>
+            </div>
+            
+            <!-- Treatment Effectiveness -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Treatment Effectiveness</h2>
+                </div>
+                <div class="chart-container" id="effectiveness-chart"></div>
+            </div>
+            
+            <!-- Side Effects Minimization -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Side Effects Minimization</h2>
+                </div>
+                <div class="chart-container" id="side-effects-chart"></div>
+            </div>
+            
+            <!-- Progress Tracker -->
+            <div class="card progress-container">
+                <div class="card-header">
+                    <h2 class="card-title">Treatment Progress</h2>
+                </div>
+                <div class="progress-header">
+                    <div class="progress-title">Session Progress</div>
+                    <div class="progress-stats" id="progress-stats">3 of 12 sessions completed</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 25%"></div>
+                </div>
+                
+                <div class="progress-sessions" id="progress-sessions">
+                    <!-- Session dots will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        // Create plexus background effect
+        createPlexusBackground();
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadCard = document.getElementById('upload-card');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const resultsSection = document.getElementById('results-section');
+        const saveBtn = document.getElementById('save-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressStats = document.getElementById('progress-stats');
+        const progressSessions = document.getElementById('progress-sessions');
+
+        // Chart elements
+        const dosageChartEl = document.getElementById('dosage-chart');
+        const effectivenessChartEl = document.getElementById('effectiveness-chart');
+        const sideEffectsChartEl = document.getElementById('side-effects-chart');
+
+        // Stats elements
+        const dosageValue = document.getElementById('dosage-value');
+        const sessionsValue = document.getElementById('sessions-value');
+        const totalDosageValue = document.getElementById('total-dosage-value');
+
+        // Create a new patient selection section
+        let patientSelectionCard = document.createElement('div');
+        patientSelectionCard.id = 'patient-selection-card';
+        patientSelectionCard.className = 'card';
+        patientSelectionCard.innerHTML = `
+            <div class="card-header">
+                <h2 class="card-title">Select Patient</h2>
+            </div>
+            <div id="patients-grid" class="patients-grid"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" id="analyze-patient-btn" disabled>Analyze Selected Patient</button>
+            </div>
+        `;
+
+        // Add styles for patient selection
+        const style = document.createElement('style');
+        style.textContent = `
+            .patients-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .patient-card {
+                background: rgba(25, 25, 50, 0.5);
+                border-radius: 10px;
+                padding: 1.5rem;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .patient-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+            }
+            
+            .patient-card.selected {
+                border: 2px solid #667eea;
+                background: rgba(102, 126, 234, 0.1);
+            }
+            
+            .patient-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(45deg, #4776E6, #8E54E9);
+                margin: 0 auto 1rem auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                color: white;
+            }
+            
+            .patient-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #a9c2ff;
+                margin-bottom: 0.5rem;
+            }
+            
+            .patient-detail {
+                font-size: 0.9rem;
+                color: #7f8ea3;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Insert the patient selection card after the upload card
+        uploadCard.parentNode.insertBefore(patientSelectionCard, uploadCard.nextSibling);
+        patientSelectionCard.style.display = 'none'; // Hide initially
+
+        // Initialize upload functionality
+        function initializeUpload() {
+            // Clear all previous handlers by using direct assignment instead of addEventListener
+            
+            // Handle upload button click
+            uploadBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent event from bubbling to uploadArea
+                fileInput.click();
+            };
+            
+            // Handle upload area click - only trigger if clicking the area (not the button)
+            uploadArea.onclick = function(e) {
+                // Only trigger if the click is directly on the upload area, not on its children
+                if (e.target === uploadArea) {
+                    fileInput.click();
+                }
+            };
+            
+            // Reset the file input value to ensure change event fires even with the same file
+            fileInput.value = '';
+        }
+
+        // Set up drag/drop events
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#a45deb';
+            uploadArea.style.background = 'rgba(102, 126, 234, 0.15)';
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                processFile();
+            }
+        });
+
+        // File input change event
+        fileInput.addEventListener('change', processFile);
+
+        // Process the uploaded file
+        function processFile() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            // Show file name on upload area
+            const uploadText = document.querySelector('.upload-text h3');
+            uploadText.textContent = `File selected: ${file.name}`;
+            
+            // Remove previous click handlers
+            uploadBtn.onclick = null;
+            uploadArea.onclick = null;
+            
+            // Update button text and handler
+            uploadBtn.textContent = 'Submit for Analysis';
+            uploadBtn.onclick = showPatientSelection;
+        }
+
+        // Show patient selection after file is submitted
+        function showPatientSelection() {
+            // Show loading spinner briefly
+            loadingSpinner.style.display = 'block';
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Processing...';
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Hide loading spinner and upload card
+                loadingSpinner.style.display = 'none';
+                uploadCard.style.display = 'none';
+                
+                // Show patient selection
+                patientSelectionCard.style.display = 'block';
+                
+                // Generate patient list (hardcoded 8 patients)
+                generatePatientList();
+                
+                // Scroll to patient selection
+                patientSelectionCard.scrollIntoView({ behavior: 'smooth' });
+            }, 1500);
+        }
+
+        // Generate hardcoded patient list
+        function generatePatientList() {
+            const patientsGrid = document.getElementById('patients-grid');
+            patientsGrid.innerHTML = '';
+            
+            const patients = [
+                { id: 1, name: 'John Doe', age: 58, cancer: 'Lung', stage: 'III' },
+                { id: 2, name: 'Jane Smith', age: 45, cancer: 'Breast', stage: 'II' },
+                { id: 3, name: 'Robert Johnson', age: 67, cancer: 'Prostate', stage: 'II' },
+                { id: 4, name: 'Susan Williams', age: 52, cancer: 'Colon', stage: 'I' },
+                { id: 5, name: 'Michael Brown', age: 71, cancer: 'Pancreatic', stage: 'IV' },
+                { id: 6, name: 'Emily Davis', age: 39, cancer: 'Ovarian', stage: 'III' },
+                { id: 7, name: 'David Wilson', age: 63, cancer: 'Lung', stage: 'II' },
+                { id: 8, name: 'Karen Taylor', age: 48, cancer: 'Brain', stage: 'I' }
+            ];
+            
+            let selectedPatient = null;
+            const analyzeBtn = document.getElementById('analyze-patient-btn');
+            
+            patients.forEach(patient => {
+                const patientCard = document.createElement('div');
+                patientCard.className = 'patient-card';
+                patientCard.dataset.patientId = patient.id;
+                
+                // Get initials for avatar
+                const initials = patient.name.split(' ').map(n => n[0]).join('');
+                
+                patientCard.innerHTML = `
+                    <div class="patient-avatar">${initials}</div>
+                    <div class="patient-name">${patient.name}</div>
+                    <div class="patient-detail">Age: ${patient.age}</div>
+                    <div class="patient-detail">${patient.cancer} Cancer, Stage ${patient.stage}</div>
+                `;
+                
+                patientCard.addEventListener('click', () => {
+                    // Remove selected class from all patient cards
+                    document.querySelectorAll('.patient-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to this card
+                    patientCard.classList.add('selected');
+                    
+                    // Enable analyze button
+                    analyzeBtn.disabled = false;
+                    
+                    // Store selected patient
+                    selectedPatient = patient;
+                });
+                
+                patientsGrid.appendChild(patientCard);
+            });
+            
+            // Handle analyze button click
+            analyzeBtn.onclick = () => {
+                if (selectedPatient) {
+                    analyzePatient(selectedPatient);
+                }
+            };
+        }
+
+        // Analyze the selected patient
+        function analyzePatient(patient) {
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Hide loading and patient selection
+                loadingSpinner.style.display = 'none';
+                patientSelectionCard.style.display = 'none';
+                
+                // Show results section
+                resultsSection.style.display = 'block';
+                
+                // Update the patient name in the treatment overview
+                const treatmentTitle = document.querySelector('.card-header .card-title');
+                if (treatmentTitle && treatmentTitle.textContent === 'Treatment Overview') {
+                    treatmentTitle.textContent = `Treatment Overview: ${patient.name}`;
+                }
+                
+                // Add back button if it doesn't exist
+                if (!document.getElementById('back-to-patients-btn')) {
+                    const backBtn = document.createElement('button');
+                    backBtn.id = 'back-to-patients-btn';
+                    backBtn.className = 'btn btn-secondary';
+                    backBtn.textContent = 'Back to Patient List';
+                    backBtn.style.marginRight = '10px';
+                    backBtn.onclick = function() {
+                        // Hide results
+                        resultsSection.style.display = 'none';
+                        
+                        // Clear charts to prevent memory leaks
+                        dosageChartEl.innerHTML = '';
+                        effectivenessChartEl.innerHTML = '';
+                        sideEffectsChartEl.innerHTML = '';
+                        
+                        // Show patient selection
+                        patientSelectionCard.style.display = 'block';
+                        patientSelectionCard.scrollIntoView({ behavior: 'smooth' });
+                    };
+                    
+                    // Insert before the export button
+                    const saveBtn = document.getElementById('save-btn');
+                    saveBtn.parentNode.insertBefore(backBtn, saveBtn);
+                }
+                
+                // Update values based on patient
+                updateStats(patient);
+                
+                // Create charts
+                createDosageChart(patient);
+                createEffectivenessChart(patient);
+                createSideEffectsChart(patient);
+                
+                // Create progress tracker
+                updateProgressTracker(patient);
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+
+        // Update statistics based on selected patient
+        function updateStats(patient) {
+            // Customize values based on patient data
+            let dosage, sessions, totalDosage;
+            
+            // Set values based on cancer type and stage
+            switch(patient.cancer) {
+                case 'Lung':
+                    dosage = patient.stage === 'III' ? 2.6 : 2.3;
+                    sessions = patient.stage === 'III' ? 15 : 12;
+                    break;
+                case 'Breast':
+                    dosage = 2.2;
+                    sessions = 10;
+                    break;
+                case 'Prostate':
+                    dosage = 2.0;
+                    sessions = 8;
+                    break;
+                case 'Pancreatic':
+                    dosage = 2.8;
+                    sessions = 18;
+                    break;
+                case 'Brain':
+                    dosage = 2.1;
+                    sessions = 14;
+                    break;
+                default:
+                    dosage = 2.4;
+                    sessions = 12;
+            }
+            
+            // Adjust based on age
+            if (patient.age > 65) {
+                dosage -= 0.1;
+                sessions = Math.round(sessions * 1.1);
+            } else if (patient.age < 40) {
+                dosage += 0.1;
+                sessions = Math.round(sessions * 0.9);
+            }
+            
+            totalDosage = (dosage * sessions).toFixed(1);
+            
+            // Update the DOM
+            dosageValue.textContent = `${dosage.toFixed(1)} Gy`;
+            sessionsValue.textContent = sessions;
+            totalDosageValue.textContent = `${totalDosage} Gy`;
+        }
+
+        // Create dosage distribution chart customized for the patient
+        function createDosageChart(patient) {
+            dosageChartEl.innerHTML = ''; // Clear previous chart
+            
+            const ctx = document.createElement('canvas');
+            ctx.width = dosageChartEl.offsetWidth;
+            ctx.height = dosageChartEl.offsetHeight;
+            dosageChartEl.appendChild(ctx);
+            
+            // Generate session labels based on the number of sessions
+            const sessionCount = parseInt(sessionsValue.textContent);
+            const labels = Array.from({length: sessionCount}, (_, i) => `Session ${i+1}`);
+            
+            // Generate slightly varied dosage values based on the patient's optimal dosage
+            const baseDosage = parseFloat(dosageValue.textContent);
+            const data = Array.from({length: sessionCount}, () => {
+                // Random variation of ±0.2 Gy
+                return (baseDosage + (Math.random() * 0.4 - 0.2)).toFixed(1);
+            });
+            
+            // Sample data - would come from backend
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Optimized Dosage (Gy)',
+                        data: data,
+                        backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                        borderColor: 'rgba(79, 172, 254, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#a9c2ff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#a9c2ff',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            ticks: {
+                                color: '#7f8ea3'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            ticks: {
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create treatment effectiveness chart customized for the patient
+        function createEffectivenessChart(patient) {
+            effectivenessChartEl.innerHTML = ''; // Clear previous chart
+            
+            const ctx = document.createElement('canvas');
+            ctx.width = effectivenessChartEl.offsetWidth;
+            ctx.height = effectivenessChartEl.offsetHeight;
+            effectivenessChartEl.appendChild(ctx);
+            
+            // Generate session labels based on the number of sessions
+            const sessionCount = parseInt(sessionsValue.textContent);
+            const labels = Array.from({length: sessionCount}, (_, i) => `Session ${i+1}`);
+            
+            // Generate effectiveness data based on cancer type and stage
+            let effectivenessData = [];
+            let maxEffectiveness = 100;
+            
+            // Adjust effectiveness curve based on cancer stage
+            let curveType = 'linear';
+            if (patient.stage === 'I') {
+                curveType = 'fast';
+                maxEffectiveness = 99;
+            } else if (patient.stage === 'IV') {
+                curveType = 'slow';
+                maxEffectiveness = 80;
+            } else if (patient.stage === 'III') {
+                curveType = 'medium';
+                maxEffectiveness = 95;
+            } else {
+                curveType = 'medium';
+                maxEffectiveness = 98;
+            }
+            
+            // Generate data points for the effectiveness curve
+            for (let i = 0; i < sessionCount; i++) {
+                let progress = i / (sessionCount - 1);
+                let value;
+                
+                switch(curveType) {
+                    case 'fast':
+                        // Rapid initial response that plateaus
+                        value = Math.pow(progress, 0.5) * maxEffectiveness;
+                        break;
+                    case 'slow':
+                        // Slow initial response that accelerates
+                        value = Math.pow(progress, 1.5) * maxEffectiveness;
+                        break;
+                    case 'medium':
+                        // Balanced response
+                        value = progress * maxEffectiveness;
+                        break;
+                    default:
+                        value = progress * maxEffectiveness;
+                }
+                
+                effectivenessData.push(Math.round(value));
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tumor Reduction (%)',
+                        data: effectivenessData,
+                        backgroundColor: 'rgba(142, 84, 233, 0.2)',
+                        borderColor: 'rgba(142, 84, 233, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#a9c2ff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#a9c2ff',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            ticks: {
+                                color: '#7f8ea3'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                            },
+                            ticks: {
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create side effects chart
+        function createSideEffectsChart(patient) {
+            sideEffectsChartEl.innerHTML = ''; // Clear previous chart
+            
+            const ctx = document.createElement('canvas');
+            ctx.width = sideEffectsChartEl.offsetWidth;
+            ctx.height = sideEffectsChartEl.offsetHeight;
+            sideEffectsChartEl.appendChild(ctx);
+            
+            // Adjust side effects based on age and cancer type
+            let baseValues = {
+                standard: [75, 82, 60, 70, 55, 68],
+                optimized: [40, 35, 28, 32, 25, 30]
+            };
+            
+            // Age-based adjustments
+            if (patient.age > 65) {
+                // Elderly patients experience more side effects
+                baseValues.standard = baseValues.standard.map(v => Math.min(v + 10, 95));
+                baseValues.optimized = baseValues.optimized.map(v => Math.min(v + 5, 60));
+            } else if (patient.age < 40) {
+                // Younger patients tolerate treatment better
+                baseValues.standard = baseValues.standard.map(v => Math.max(v - 5, 40));
+                baseValues.optimized = baseValues.optimized.map(v => Math.max(v - 3, 15));
+            }
+            
+            // Cancer-type based adjustments
+            if (patient.cancer === 'Brain') {
+                // Brain cancer has more neurological effects
+                baseValues.standard[0] += 15; // Fatigue
+                baseValues.optimized[0] += 10;
+            } else if (patient.cancer === 'Lung') {
+                // Lung cancer affects breathing
+                baseValues.standard[2] += 10; // Nausea
+                baseValues.optimized[2] += 5;
+            }
+            
+            // Sample data - would come from backend
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Fatigue', 'Skin Reaction', 'Nausea', 'Hair Loss', 'Pain', 'Swelling'],
+                    datasets: [
+                        {
+                            label: 'Standard Treatment',
+                            data: baseValues.standard,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                        },
+                        {
+                            label: 'Quantum Optimized',
+                            data: baseValues.optimized,
+                            backgroundColor: 'rgba(79, 172, 254, 0.2)',
+                            borderColor: 'rgba(79, 172, 254, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(79, 172, 254, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#a9c2ff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#a9c2ff',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(255, 255, 255, 0.1)',
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            pointLabels: {
+                                color: '#a9c2ff'
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update progress tracker
+        function updateProgressTracker(patient) {
+            const totalSessions = parseInt(sessionsValue.textContent);
+            // For demo purposes, we'll randomly set between 0-4 completed sessions
+            const completedSessions = Math.floor(Math.random() * 5);
+            const progress = (completedSessions / totalSessions) * 100;
+            
+            // Update progress bar
+            progressBar.style.width = `${progress}%`;
+            
+            // Update progress stats text
+            progressStats.textContent = `${completedSessions} of ${totalSessions} sessions completed`;
+            
+            // Create session dots
+            progressSessions.innerHTML = ''; // Clear any existing dots
+            for (let i = 1; i <= totalSessions; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('session-dot');
+                
+                if (i <= completedSessions) {
+                    dot.classList.add('completed');
+                } else if (i === completedSessions + 1) {
+                    dot.classList.add('current');
+                }
+                
+                dot.setAttribute('title', `Session ${i}`);
+                progressSessions.appendChild(dot);
+            }
+        }
+
+        // Add a reset button in the navbar to start over
+        const navAuth = document.querySelector('.nav-auth');
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'nav-button login-btn';
+        resetBtn.textContent = 'New Analysis';
+        resetBtn.onclick = resetDashboard;
+        navAuth.insertBefore(resetBtn, navAuth.firstChild);
+
+        // Function to reset the dashboard
+        function resetDashboard() {
+            // Hide results and patient selection
+            resultsSection.style.display = 'none';
+            patientSelectionCard.style.display = 'none';
+            
+            // Clear charts
+            dosageChartEl.innerHTML = '';
+            effectivenessChartEl.innerHTML = '';
+            sideEffectsChartEl.innerHTML = '';
+            
+            // Reset and show upload card
+            const uploadText = document.querySelector('.upload-text h3');
+            uploadText.textContent = 'Drag and drop your CSV file';
+            uploadCard.style.display = 'block';
+            
+            // Reset file input
+            fileInput.value = '';
+            
+            // Reset upload button state
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Select Patient Data';
+            
+            // Reinitialize upload functionality
+            initializeUpload();
+            
+            // Scroll to top
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Plexus Background Function
+        function createPlexusBackground() {
+            const canvas = document.getElementById('plexus-background');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Plexus configuration
+            const particleCount = 100;
+            const connectionDistance = 150;
+            const particles = [];
+            
+            // Colors
+            const colors = {
+                particle: '#8a9ef5',
+                connection: '#5e72e4',
+                gradient1: '#4776E6',
+                gradient2: '#8E54E9'
+            };
+            
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: Math.random() * 0.5 - 0.25,
+                    vy: Math.random() * 0.5 - 0.25,
+                    size: Math.random() * 2 + 1
+                });
+            }
+            
+            // Animation loop
+            function animate() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Create background gradient
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#0a0a1a');
+                gradient.addColorStop(1, '#141432');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw particles
+                particles.forEach(particle => {
+                    // Update position
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    // Bounce off edges
+                    if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                    
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = colors.particle;
+                    ctx.fill();
+                    
+                    // Draw connections
+                    particles.forEach(otherParticle => {
+                        const dx = particle.x - otherParticle.x;
+                        const dy = particle.y - otherParticle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particle.x, particle.y);
+                            ctx.lineTo(otherParticle.x, otherParticle.y);
+                            
+                            // Opacity based on distance
+                            const opacity = 1 - (distance / connectionDistance);
+                            ctx.strokeStyle = `rgba(94, 114, 228, ${opacity * 0.5})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Initialize the upload functionality on page load
+        initializeUpload();
+
+        // Optional: Add save button functionality
+        saveBtn.addEventListener('click', function() {
+            alert('Results exported successfully!');
+            // In a real app, this would trigger a download or save to server
+        });
+    </script>
+</body>
+</html>
