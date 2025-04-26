@@ -6,18 +6,21 @@ from app.main import app
 from fastapi.testclient import TestClient
 from app.models.patient import CareSpecialist, Patient
 import os
+from sqlalchemy.pool import StaticPool
 
-# Use PostgreSQL for testing
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/qurai_test_db"
+# Use SQLite for testing
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
 )
 
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @pytest.fixture(scope="session")
 def engine():
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)

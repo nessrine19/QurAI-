@@ -183,4 +183,39 @@ poetry run pytest tests/ -v
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Running with Docker
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Quick Start
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/nessrine19/QurAI-.git
+   cd QurAI-/backend
+   ```
+
+2. Build and start the containers:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. The application will be available at:
+   - API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+   - Database: localhost:5432
+
+### Development with Docker
+- The application code is mounted as a volume, so changes will be reflected immediately
+- The database data is persisted in a Docker volume
+- To stop the containers:
+  ```bash
+  docker-compose down
+  ```
+- To stop and remove all data:
+  ```bash
+  docker-compose down -v
+  ``` 

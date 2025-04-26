@@ -21,7 +21,8 @@ class CareSpecialist(Base):
 class Patient(Base):
     __tablename__ = "patients"
 
-    patient_id = Column(String, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_id = Column(String, index=True)
     first_name = Column(String)
     last_name = Column(String)
     date_of_birth = Column(Date)
@@ -47,7 +48,7 @@ class CareSpecialistBase(BaseModel):
     specialization: str
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class PatientCSV(BaseModel):
     patient_id: str
@@ -61,14 +62,13 @@ class PatientCSV(BaseModel):
     treatment_plan: Optional[str] = None
     notes: Optional[str] = None
     specialist_id: str
-    biomarkers: Optional[str] = None  # Add biomarkers field
-    treatment_cycle: Optional[int] = None  # Add treatment cycle field
+    biomarkers: Optional[str] = None
+    treatment_cycle: Optional[int] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class PatientResponse(BaseModel):
-    id: int
     patient_id: str
     first_name: str
     last_name: str
@@ -79,10 +79,11 @@ class PatientResponse(BaseModel):
     tumor_stage: str
     treatment_plan: Optional[str] = None
     notes: Optional[str] = None
-    care_specialist_id: str
-    created_at: datetime
-    treatment_cycle: int
+    specialist_id: str
     biomarkers: Optional[str] = None
+    treatment_cycle: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
 
     class Config:
-        from_attributes = True 
+        orm_mode = True 

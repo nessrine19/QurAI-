@@ -11,9 +11,6 @@ from .database import get_db, Base, engine
 from typing import List, Dict, Set
 from pydantic import BaseModel
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title="QurAI API",
     description="""
@@ -189,52 +186,103 @@ async def upload_patients_csv(file: UploadFile = File(...), db: Session = Depend
         csv_data = io.StringIO(contents.decode('utf-8'))
         reader = csv.DictReader(csv_data)
         
-        # Track processed patient IDs to detect duplicates
+        # Track processed patient IDs to detect duplicates within the CSV
         processed_patient_ids = set()
         patients_processed = 0
         
         for row in reader:
             try:
                 # Convert date string to datetime
-                date_of_birth = datetime.strptime(row['date_of_birth'], '%Y-%m-%d').date()
-                
-                # Create patient data dictionary
-                patient_data = {
-                    'patient_id': row['patient_id'],
-                    'first_name': row['first_name'],
-                    'last_name': row['last_name'],
-                    'date_of_birth': date_of_birth,
-                    'gender': row['gender'],
-                    'diagnosis': row['diagnosis'],
-                    'tumor_location': row['tumor_location'],
-                    'tumor_stage': row['tumor_stage'],
-                    'treatment_plan': row['treatment_plan'],
-                    'notes': row['notes'],
-                    'specialist_id': row['specialist_id'],
-                    'biomarkers': row['biomarkers'],
-                    'treatment_cycle': 1  # Initialize treatment cycle
-                }
-                
-                # Check for duplicate patient ID
-                if patient_data['patient_id'] in processed_patient_ids:
+                try:
+                    date_of_birth = datetime.strptime(row['date_of_birth'], '%Y-%m-%d').date()
+                except ValueError:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Duplicate patient ID found: {patient_data['patient_id']}"
+                        detail="Invalid data format"
                     )
                 
-                # Create and save patient
-                patient = Patient(**patient_data)
+                # Check for required fields
+                required_fields = ['patient_id', 'first_name', 'last_name', 'date_of_birth', 
+                                 'gender', 'diagnosis', 'tumor_location', 'tumor_stage', 
+                                 'specialist_id']
+                for field in required_fields:
+                    if field not in row or not row[field]:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Missing required field: {field}"
+                        )
+                
+                # Validate care specialist exists
+                care_specialist = db.query(CareSpecialist).filter(
+                    CareSpecialist.specialist_id == row['specialist_id']
+                ).first()
+                if not care_specialist:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Care specialist with ID {row['specialist_id']} not found"
+                    )
+                
+                # Check for duplicate patient ID within the CSV
+                if row['patient_id'] in processed_patient_ids:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Duplicate patient ID found in CSV: {row['patient_id']}"
+                    )
+                
+                # Get the latest treatment cycle for this patient
+                latest_patient = db.query(Patient).filter(
+                    Patient.patient_id == row['patient_id']
+                ).order_by(desc(Patient.created_at)).first()
+                
+                # Calculate the next treatment cycle
+                next_treatment_cycle = 1
+                if latest_patient:
+                    next_treatment_cycle = latest_patient.treatment_cycle + 1
+                
+                # Create new patient record
+                patient = Patient(
+                    patient_id=row['patient_id'],
+                    first_name=row['first_name'],
+                    last_name=row['last_name'],
+                    date_of_birth=date_of_birth,
+                    gender=row['gender'],
+                    diagnosis=row['diagnosis'],
+                    tumor_location=row['tumor_location'],
+                    tumor_stage=row['tumor_stage'],
+                    treatment_plan=row.get('treatment_plan', ''),
+                    notes=row.get('notes', ''),
+                    specialist_id=care_specialist.specialist_id,
+                    biomarkers=row.get('biomarkers', ''),
+                    treatment_cycle=next_treatment_cycle
+                )
+                
+                # Add patient to database and flush to get the ID
                 db.add(patient)
-                processed_patient_ids.add(patient_data['patient_id'])
+                db.flush()
+                
+                processed_patient_ids.add(row['patient_id'])
                 patients_processed += 1
                 
-            except ValueError as e:
+            except HTTPException as e:
+                # Re-raise HTTP exceptions
+                raise e
+            except Exception as e:
+                # Convert other exceptions to HTTP exceptions
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid data format in row: {str(e)}"
+                    detail=str(e)
                 )
         
-        db.commit()
+        # Commit all changes
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Error saving to database: {str(e)}"
+            )
+        
         return JSONResponse(
             content={
                 "message": "Patients uploaded successfully",
@@ -242,9 +290,15 @@ async def upload_patients_csv(file: UploadFile = File(...), db: Session = Depend
             }
         )
         
+    except HTTPException as e:
+        # Re-raise HTTP exceptions
+        raise e
     except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+        # Convert other exceptions to HTTP exceptions
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error processing CSV file: {str(e)}"
+        )
 
 class ClassificationResult(BaseModel):
     """
