@@ -257,5 +257,12 @@ def classify_patient(patient_id):
     except Exception as e:
         return jsonify({'error': f'Error during classification: {str(e)}'}), 500
 
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """
+    Simple health check endpoint that returns 'ready' if the API is running
+    """
+    return jsonify({'status': 'ready'}), 200
+
 if __name__ == '__main__':
     app.run(debug=True) 
