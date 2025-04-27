@@ -1,14 +1,12 @@
-# Import necessary libraries
-from flask import Flask, request, jsonify  # Flask framework for web API
-from flask_sqlalchemy import SQLAlchemy    # SQLAlchemy for database ORM
-from flask_migrate import Migrate          # Database migration tool
-from flask_cors import CORS                # Cross-Origin Resource Sharing support
-import pandas as pd                        # Data manipulation library
-import os                                  # Operating system interface
-from dotenv import load_dotenv            # Environment variable management
-import joblib                             # Model persistence
+from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_cors import CORS
+import pandas as pd
+import os
+from dotenv import load_dotenv
+import joblib
 
-# Load environment variables from .env file
 load_dotenv()
 
 # Initialize Flask application
@@ -19,7 +17,24 @@ CORS(app)  # Enable CORS for all routes
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize database and migration objects
+# Routes
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(os.path.join(app.root_path, 'static'), filename)
+
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

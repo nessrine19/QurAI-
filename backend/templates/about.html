@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QurAI - About Us</title>
+    <style>
+        /* Base styles and reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+            background-color: #0a0a1a;
+            color: #fff;
+        }
+        
+        /* Navbar styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+            margin-right: auto;
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-button {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #a9c2ff;
+            border: 1px solid #667eea;
+        }
+        
+        .register-btn {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(86, 102, 193, 0.2);
+        }
+
+        /* Plexus background */
+        #plexus-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Main container */
+        .about-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .about-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .about-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .about-header p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #c8d4ff;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Team Group Picture */
+        .team-group-picture {
+            margin: 2rem auto 3rem;
+            text-align: center;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        .team-group-picture img {
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(31, 38, 135, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-group-picture::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 20px);
+            max-width: 980px;
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(to bottom, transparent 80%, rgba(10, 10, 26, 1));
+            pointer-events: none;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(15, 15, 36, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+
+        /* Team section styles */
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .team-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .member-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1.2rem;
+            border: 3px solid transparent;
+            background: linear-gradient(45deg, #4776E6, #8E54E9) border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a9c2ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-title {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: #7f8ea3;
+            margin-bottom: 1rem;
+        }
+
+        .member-bio {
+            font-size: 0.9rem;
+            color: #c8d4ff;
+            line-height: 1.5;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a9c2ff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .social-icon:hover {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Technology section */
+        .tech-content {
+            color: #c8d4ff;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .tech-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            z-index: 1;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(86, 102, 193, 0.4);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .member-avatar {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .about-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .member-avatar {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Plexus Background Canvas -->
+    <canvas id="plexus-background"></canvas>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" style="text-decoration: none;">
+            <div class="logo">QurAI</div>
+        </a>
+        <div class="nav-auth">
+            <a href="dashboard.html" class="nav-button login-btn">Dashboard</a>
+            <button class="nav-button register-btn">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Main About Container -->
+    <div class="about-container">
+        <!-- About Header -->
+        <div class="about-header">
+            <h1>Meet Our Quantum Radiotherapy Team</h1>
+            <p>Our interdisciplinary experts combine quantum physics, medical oncology, and artificial intelligence to revolutionize cancer treatment through personalized radiotherapy solutions.</p>
+        </div>
+        
+        <!-- Team Group Picture -->
+        <div class="team-group-picture">
+            <img src="assets/group_pic.jpg" alt="QurAI Team Group Photo - Our diverse team of experts collaborating on quantum radiotherapy solutions">
+        </div>
+        
+        <!-- Team Section -->
+        <div class="card">
+            <h3 class="section-title">The Members</h3>
+            <div class="team-grid">
+                <!-- Team Member 1 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Akash Malemath">
+                    </div>
+                    <h3 class="member-name">Akash Malemath</h3>
+                    <p class="member-title">Student, Mentor</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 2 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="SOUHAIB BENBOUAZZA">
+                    </div>
+                    <h3 class="member-name">SOUHAIB BENBOUAZZA</h3>
+                    <p class="member-title">Mentor</p>
+                    <p class="member-bio">Board-certified radiation oncologist with 15+ years of experience in advanced cancer treatment.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 3 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="RAZEEN UD DIN">
+                    </div>
+                    <h3 class="member-name">RAZEEN UD DIN</h3>
+                    <p class="member-title">CEO & Co-founder</p>
+                    <p class="member-bio">Former head of innovation at Global Health Technologies with expertise in healthcare AI systems.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 4 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="KHALED AMMOURA">
+                    </div>
+                    <h3 class="member-name">KHALED AMMOURA</h3>
+                    <p class="member-title">CTO & Co-founder</p>
+                    <p class="member-bio">Computer scientist specializing in medical AI with previous experience at DeepMind Health.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 5 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Yash Chauhan">
+                    </div>
+                    <h3 class="member-name">Yash Chauhan</h3>
+                    <p class="member-title">Lead Algorithm Developer</p>
+                    <p class="member-bio">Specialist in quantum machine learning with expertise in optimization algorithms.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 6 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="NESRINE ABDELHAK">
+                    </div>
+                    <h3 class="member-name">NESRINE ABDELHAK</h3>
+                    <p class="member-title">Radiation Physics Lead</p>
+                    <p class="member-bio">Medical physicist with expertise in dosimetry and radiation treatment planning.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 7 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Ioannis Theodonis">
+                    </div>
+                    <h3 class="member-name">Ioannis Theodonis</h3>
+                    <p class="member-title">Clinical Research Director</p>
+                    <p class="member-bio">Leads our clinical trials and patient outcome studies across partner institutions.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 8 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Salim Hamzaoui">
+                    </div>
+                    <h3 class="member-name">Salim Hamzaoui</h3>
+                    <p class="member-title">Senior Data Scientist</p>
+                    <p class="member-bio">Expert in patient data modeling and predictive analytics for treatment outcomes.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 9 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Rabeya Zahan Mily">
+                    </div>
+                    <h3 class="member-name">Rabeya Zahan Mily</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 10 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Sadil YASSEN">
+                    </div>
+                    <h3 class="member-name">Sadil YASSEN</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 11 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="HODHAIFA BENOUAKLIL">
+                    </div>
+                    <h3 class="member-name">HODHAIFA BENOUAKLIL</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+
+                <!-- Team Member 12 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Mario Ghaly">
+                    </div>
+                    <h3 class="member-name">Mario Ghaly</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 13 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Mohammed Uddin">
+                    </div>
+                    <h3 class="member-name">Mohammed Uddin</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+                
+                <!-- Team Member 14 -->
+                <div class="team-member">
+                    <div class="member-avatar">
+                        <img src="/api/placeholder/400/400" alt="Eyerusalem Hawoltu Afework">
+                    </div>
+                    <h3 class="member-name">Eyerusalem Hawoltu Afework</h3>
+                    <p class="member-title">Chief Quantum Scientist</p>
+                    <p class="member-bio">Ph.D. in Quantum Physics from MIT with 12+ years of experience in quantum algorithm development.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">X</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Section
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Our Quantum Technology</h2>
+            </div>
+            
+            <div class="tech-content">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.</p>
+                
+                <p>Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor.</p>
+                
+                <p>Fusce aliquet, dolor eget semper ultrices, nunc orci egestas leo, sit amet faucibus nulla tortor id augue. Integer auctor, magna vel commodo consequat, dolor ligula venenatis mauris, at laoreet mi eros et purus. Nam tincidunt placerat urna, vel posuere nisl lobortis vel. Praesent nec nulla justo. Phasellus tincidunt, lacus ac finibus semper, dolor felis accumsan nibh, ac tristique erat magna quis enim.</p>
+                
+                <p>Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci.</p>
+            </div>
+        </div> -->
+    </div>
+
+    <!-- Import Scripts -->
+    <script>
+        // Create plexus background effect
+        createPlexusBackground();
+
+        // Plexus Background Function
+        function createPlexusBackground() {
+            const canvas = document.getElementById('plexus-background');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Plexus configuration
+            const particleCount = 100;
+            const connectionDistance = 150;
+            const particles = [];
+            
+            // Colors
+            const colors = {
+                particle: '#8a9ef5',
+                connection: '#5e72e4',
+                gradient1: '#4776E6',
+                gradient2: '#8E54E9'
+            };
+            
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: Math.random() * 0.5 - 0.25,
+                    vy: Math.random() * 0.5 - 0.25,
+                    size: Math.random() * 2 + 1
+                });
+            }
+            
+            // Animation loop
+            function animate() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Create background gradient
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#0a0a1a');
+                gradient.addColorStop(1, '#141432');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw particles
+                particles.forEach(particle => {
+                    // Update position
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    // Bounce off edges
+                    if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                    
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fillStyle = colors.particle;
+                    ctx.fill();
+                    
+                    // Draw connections
+                    particles.forEach(otherParticle => {
+                        const dx = particle.x - otherParticle.x;
+                        const dy = particle.y - otherParticle.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particle.x, particle.y);
+                            ctx.lineTo(otherParticle.x, otherParticle.y);
+                            
+                            // Opacity based on distance
+                            const opacity = 1 - (distance / connectionDistance);
+                            ctx.strokeStyle = `rgba(94, 114, 228, ${opacity * 0.5})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            // Start animation
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+    </script>
+</body>
+</html>

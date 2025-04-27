@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QurAI - Treatment Dashboard</title>
+    <style>
+        /* Base styles and reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+            background-color: #0a0a1a;
+            color: #fff;
+        }
+        
+        /* Navbar styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-right: auto; /* Push everything else to the right */
+        }
+        
+        .logo-img {
+            height: 35px;
+            margin-right: 0.7rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .nav-button {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #a9c2ff;
+            border: 1px solid #667eea;
+        }
+        
+        .register-btn {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            border: none;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(86, 102, 193, 0.2);
+        }
+
+        /* Plexus background */
+        #plexus-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Main container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #c8d4ff;
+            max-width: 800px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: rgba(15, 15, 36, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 2rem;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #8E54E9;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .upload-text {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-text h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #a9c2ff;
+        }
+
+        .upload-text p {
+            color: #7f8ea3;
+            font-size: 0.95rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            color: white;
+            box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #a9c2ff;
+            border: 2px solid #667eea;
+            box-shadow: 0 4px 12px rgba(105, 120, 209, 0.15);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(86, 102, 193, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5985ff, #a171ff);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #fff;
+        }
+
+        /* Results area (hidden by default) */
+        #results-section {
+            display: none;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(25, 25, 50, 0.5);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            background: linear-gradient(45deg, #4facfe 0%, #a45deb 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label {
+            color: #a9c2ff;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .stat-sub {
+            color: #7f8ea3;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Chart containers */
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        /* Progress tracker */
+        .progress-container {
+            margin-top: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+
+        .progress-stats {
+            color: #7f8ea3;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .progress-sessions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .session-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .session-dot.completed {
+            background: #4facfe;
+        }
+
+        .session-dot.current {
+            background: #a45deb;
+            box-shadow: 0 0 10px #a45deb;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #667eea;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Classification results */
+        .classification-container {
+            margin-top: 1rem;
+        }
+        
+        .classification-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a9c2ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .classification-meter {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .meter-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .meter-bar.benign {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+        
+        .meter-bar.malignant {
+            background: linear-gradient(45deg, #f5576c, #f093fb);
+        }
+
+        /* Patient features display */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .feature-item {
+            background: rgba(25, 25, 50, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .feature-name {
+            font-size: 0.9rem;
+            color: #7f8ea3;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a9c2ff;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .notification.success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .notification.error {
+            background: linear-gradient(45deg, #dc3545, #f5576c);
+            box-shadow: 0 4px 20px rgba(220, 53, 69, 0.4);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card-title {
+                font-size: 1.1rem;
+            }
+            
+            .upload-text h3 {
+                font-size: 1.2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Patient selection */
+        .patients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .patient-card {
+            background: rgba(25, 25, 50, 0.5);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .patient-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(78, 99, 215, 0.3);
+        }
+        
+        .patient-card.selected {
+            border: 2px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .patient-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4776E6, #8E54E9);
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .patient-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #a9c2ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .patient-detail {
+            font-size: 0.9rem;
+            color: #7f8ea3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Plexus Background Canvas -->
+    <canvas id="plexus-background"></canvas>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" style="text-decoration: none;">
+            <div class="logo-container">
+                <img src="#" alt="QurAI Logo" class="logo-img">
+                <div class="logo">QurAI</div>
+            </div>
+        </a>
+        <div class="nav-auth">
+            <button class="nav-button login-btn" id="user-name">Dr. Smith</button>
+            <button class="nav-button register-btn">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Cancer Treatment Optimization</h1>
+            <p>Upload patient data to generate personalized treatment plans with optimized dosage distribution using our advanced computing technology.</p>
+        </div>
+        
+        <!-- File Upload Card -->
+        <div class="card" id="upload-card">
+            <div class="card-header">
+                <h2 class="card-title">Patient Data Upload</h2>
+            </div>
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">
+                    <h3>Drag and drop your CSV file</h3>
+                    <p>Or click to browse from your computer</p>
+                </div>
+                <input type="file" id="file-input" class="file-input" accept=".csv">
+                <button class="btn btn-primary" id="upload-btn">Select Patient Data</button>
+            </div>
+        </div>
+        
+        <!-- Loading Spinner (Initially Hidden) -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing data with quantum algorithms...</p>
+        </div>
+        
+        <!-- Patient Selection Card (Initially Hidden) -->
+        <div class="card" id="patient-selection-card" style="display: none;">
+            <div class="card-header">
+                <h2 class="card-title">Select Patient</h2>
+            </div>
+            <div id="patients-grid" class="patients-grid"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" id="analyze-patient-btn" disabled>Analyze Selected Patient</button>
+            </div>
+        </div>
+        
+        <!-- Results Section (Initially Hidden) -->
+        <div id="results-section">
+            <!-- Classification Results -->
+            <div class="card" id="classification-card">
+                <div class="card-header">
+                    <h2 class="card-title">Diagnosis Prediction</h2>
+                </div>
+                <div class="classification-container">
+                    <div class="classification-label">Benign Probability</div>align-items: center; margin: 1rem 0;">
+                    <div class="classification-meter">; padding: 1.5rem;">
+                        <div class="meter-bar benign" id="benign-meter"></div>ty</div>
+                    </div>  <div id="benign-probability" style="font-size: 3rem; font-weight: 700; margin: 0.5rem 0; background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; background-clip: text; color: transparent;">N/A</div>
+                    <div class="classification-label" id="benign-probability"></div>    </div>
+                    
+                    <div class="classification-label">Malignant Probability</div>-label">Malignant Probability</div>
+                    <div class="classification-meter">font-weight: 700; margin: 0.5rem 0; background: linear-gradient(45deg, #f5576c, #f093fb 100%); -webkit-background-clip: text; background-clip: text; color: transparent;">N/A</div>
+                        <div class="meter-bar malignant" id="malignant-meter"></div>div>
+                    </div>div>
+                    <div class="classification-label" id="malignant-probability"></div>div>
+                </div></div>
+            </div>
+            
+            <!-- Patient Features -->s-card">
+            <div class="card" id="features-card">
+                <div class="card-header">
+                    <h2 class="card-title">Patient Features</h2>utton class="btn btn-secondary" id="save-btn">Export Results</button>
+                    <button class="btn btn-secondary" id="save-btn">Export Results</button>
+                </div>
+                <div class="features-grid" id="features-grid">-- Features will be added dynamically -->
+                    <!-- Features will be added dynamically -->div>
+                </div></div>
+            </div>
+            iew Stats -->
+            <!-- Results Overview Stats -->
+            <div class="card">
+                <div class="card-header">2 class="card-title">Treatment Overview</h2>
+                    <h2 class="card-title">Treatment Overview</h2>
+                </div>
+                <div class="results-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Optimal Dosage</div>e">2.4 Gy</div>
+                        <div class="stat-value" id="dosage-value">2.4 Gy</div>iv class="stat-sub">Per Session</div>
+                        <div class="stat-sub">Per Session</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Sessions</div>lue">12</div>
+                        <div class="stat-value" id="sessions-value">12</div>iv class="stat-sub">Recommended</div>
+                        <div class="stat-sub">Recommended</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Dosage</div>">28.8 Gy</div>
+                        <div class="stat-value" id="total-dosage-value">28.8 Gy</div>iv class="stat-sub">Calculated Optimal</div>
+                        <div class="stat-sub">Calculated Optimal</div>div>
+                    </div>div>
+                </div></div>
+            </div>
+            -->
+            <!-- Dosage Graph -->
+            <div class="card">
+                <div class="card-header">2 class="card-title">Dosage Distribution</h2>
+                    <h2 class="card-title">Dosage Distribution</h2>
+                </div>iv class="chart-container" id="dosage-chart"></div>
+                <div class="chart-container" id="dosage-chart"></div></div>
+            </div>
+            ectiveness -->
+            <!-- Treatment Effectiveness -->
+            <div class="card">
+                <div class="card-header">2 class="card-title">Treatment Effectiveness</h2>
+                    <h2 class="card-title">Treatment Effectiveness</h2>
+                </div>iv class="chart-container" id="effectiveness-chart"></div>
+                <div class="chart-container" id="effectiveness-chart"></div></div>
+            </div>
+            Minimization -->
+            <!-- Side Effects Minimization -->
+            <div class="card">
+                <div class="card-header">2 class="card-title">Side Effects Minimization</h2>
+                    <h2 class="card-title">Side Effects Minimization</h2>
+                </div>iv class="chart-container" id="side-effects-chart"></div>
+                <div class="chart-container" id="side-effects-chart"></div></div>
+            </div>
+            
+            <!-- Progress Tracker -->tainer">
+            <div class="card progress-container">
+                <div class="card-header">2 class="card-title">Treatment Progress</h2>
+                    <h2 class="card-title">Treatment Progress</h2>
+                </div>
+                <div class="progress-header">
+                    <div class="progress-title">Session Progress</div>iv class="progress-stats" id="progress-stats">3 of 12 sessions completed</div>
+                    <div class="progress-stats" id="progress-stats">3 of 12 sessions completed</div>
+                </div>
+                <div class="progress-bar-container">iv class="progress-bar" id="progress-bar" style="width: 25%"></div>
+                    <div class="progress-bar" id="progress-bar" style="width: 25%"></div></div>
+                </div>
+                s">
+                <div class="progress-sessions" id="progress-sessions">-- Session dots will be added dynamically -->
+                    <!-- Session dots will be added dynamically -->div>
+                </div>div>
+            </div></div>
+        </div>
+        
+        <!-- Notification element -->iv class="notification" id="notification"></div>
+        <div class="notification" id="notification"></div>    </div>
+    </div>
+
+    <!-- Import Scripts -->src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        // Create plexus background effect
+        function createPlexusBackground() {Id('plexus-background');
+            const canvas = document.getElementById('plexus-background');const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = window.innerWidth;canvas.height = window.innerHeight;
+            canvas.height = window.innerHeight;
+            
+            // Plexus configuration
+            const particleCount = 100;nce = 150;
+            const connectionDistance = 150;const particles = [];
+            const particles = [];
+            
+            // Colors
+            const colors = {
+                particle: '#8a9ef5',,
+                connection: '#5e72e4',,
+                gradient1: '#4776E6',  gradient2: '#8E54E9'
+                gradient2: '#8E54E9'};
+            };
+            
+            // Create particlesparticleCount; i++) {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,t,
+                    y: Math.random() * canvas.height,
+                    vx: Math.random() * 0.5 - 0.25,.25,
+                    vy: Math.random() * 0.5 - 0.25, size: Math.random() * 2 + 1
+                    size: Math.random() * 2 + 1   });
+                });}
+            }
+            
+            // Animation loop{
+            function animate() {
+                // Clear canvasctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Create background gradientdient(0, 0, canvas.width, canvas.height);
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#0a0a1a');'#141432');
+                gradient.addColorStop(1, '#141432');
+                ctx.fillStyle = gradient;ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw particlesicle => {
+                particles.forEach(particle => {
+                    // Update position
+                    particle.x += particle.vx;particle.y += particle.vy;
+                    particle.y += particle.vy;
+                    
+                    // Bounce off edges
+                    if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                    if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                    
+                    // Draw particle
+                    ctx.beginPath();particle.size, 0, Math.PI * 2);
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);le = colors.particle;
+                    ctx.fillStyle = colors.particle;ctx.fill();
+                    ctx.fill();
+                    
+                    // Draw connections
+                    particles.forEach(otherParticle => {
+                        const dx = particle.x - otherParticle.x;
+                        const dy = particle.y - otherParticle.y;const distance = Math.sqrt(dx * dx + dy * dy);
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        ctionDistance) {
+                        if (distance < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particle.x, particle.y);ctx.lineTo(otherParticle.x, otherParticle.y);
+                            ctx.lineTo(otherParticle.x, otherParticle.y);
+                            
+                            // Opacity based on distance
+                            const opacity = 1 - (distance / connectionDistance);`rgba(94, 114, 228, ${opacity * 0.5})`;
+                            ctx.strokeStyle = `rgba(94, 114, 228, ${opacity * 0.5})`; = 1;
+                            ctx.lineWidth = 1;   ctx.stroke();
+                            ctx.stroke(); }
+                        } });
+                    });});
+                });
+                   requestAnimationFrame(animate);
+                requestAnimationFrame(animate);}
+            }
+            nimation
+            // Start animationanimate();
+            animate();
+            
+            // Handle window resize=> {
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+                canvas.height = window.innerHeight;   });
+            });        }
+        }
+
+        // DOM Elements
+        const fileInput = document.getElementById('file-input'););
+        const uploadArea = document.getElementById('upload-area');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadCard = document.getElementById('upload-card');
+        const loadingSpinner = document.getElementById('loading-spinner');lts-section');
+        const resultsSection = document.getElementById('results-section');
+        const saveBtn = document.getElementById('save-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressStats = document.getElementById('progress-stats');
+        const progressSessions = document.getElementById('progress-sessions');ard');
+        const patientSelectionCard = document.getElementById('patient-selection-card');ient-btn');
+        const analyzePatientBtn = document.getElementById('analyze-patient-btn'););
+        const patientsGrid = document.getElementById('patients-grid');
+        const benignProbability = document.getElementById('benign-probability');ability');
+        const malignantProbability = document.getElementById('malignant-probability');;
+        const featuresGrid = document.getElementById('features-grid');        const notification = document.getElementById('notification');
+        const notification = document.getElementById('notification');
+
+        // Chart elements
+        const dosageChartEl = document.getElementById('dosage-chart');');
+        const effectivenessChartEl = document.getElementById('effectiveness-chart');        const sideEffectsChartEl = document.getElementById('side-effects-chart');
+        const sideEffectsChartEl = document.getElementById('side-effects-chart');
+
+        // Stats elements
+        const dosageValue = document.getElementById('dosage-value');
+        const sessionsValue = document.getElementById('sessions-value');        const totalDosageValue = document.getElementById('total-dosage-value');
+        const totalDosageValue = document.getElementById('total-dosage-value');
+
+        // Application statet
+        // Hardcoded care specialistentSpecialist = {
+        const currentSpecialist = {
+            id: 1,  name: 'Dr. Smith'
+            name: 'Dr. Smith'
+        };        let selectedPatient = null;
+        let selectedPatient = null;
+
+        // Initialize the dashboardtLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {ed");
+            console.log("DOM fully loaded");nd
+            // Create plexus backgroundcreatePlexusBackground();
+            createPlexusBackground();
+            
+            // Update user name in navbar to show hardcoded specialistdocument.getElementById('user-name').textContent = currentSpecialist.name;
+            document.getElementById('user-name').textContent = currentSpecialist.name;
+            d functionality
+            // Initialize upload functionalityinitializeUpload();
+            initializeUpload();
+            
+            // Add a reset button in the navbar to start over);
+            const navAuth = document.querySelector('.nav-auth');ton');
+            const resetBtn = document.createElement('button');-btn';
+            resetBtn.className = 'nav-button login-btn';is';
+            resetBtn.textContent = 'New Analysis';
+            resetBtn.onclick = resetDashboard;navAuth.insertBefore(resetBtn, navAuth.firstChild);
+            navAuth.insertBefore(resetBtn, navAuth.firstChild);
+            
+            // Set up save buttonlick', function() {
+            saveBtn.addEventListener('click', function() {
+                if (!selectedPatient) {ification('No patient data to export', 'error');
+                    showNotification('No patient data to export', 'error');   return;
+                    return;}
+                }
+                load a report
+                // In a real app, this would generate and download a report
+                // For demo purposes, just show a notification showNotification('Report exported successfully', 'success');
+                showNotification('Report exported successfully', 'success'); });
+            });        });
+        });
+ality
+        // Initialize upload functionality
+        function initializeUpload() {console.log("Initializing upload");
+            console.log("Initializing upload");
+            
+            // Direct click handler for the upload buttonion(e) {
+            uploadBtn.addEventListener('click', function(e) { button clicked");
+                console.log("Upload button clicked");
+                e.preventDefault(););
+                e.stopPropagation(); fileInput.click();
+                fileInput.click();});
+            });
+            king the area (not the button)
+            // Handle upload area click - only trigger if clicking the area (not the button)', function(e) {
+            uploadArea.addEventListener('click', function(e) {
+                if (e.target === uploadArea) {d area clicked");
+                    console.log("Upload area clicked");   fileInput.click();
+                    fileInput.click(); }
+                }});
+            });
+            ut value to ensure change event fires even with the same file
+            // Reset the file input value to ensure change event fires even with the same filefileInput.value = '';
+            fileInput.value = '';
+            
+            // Set up drag/drop eventsener('dragover', function(e) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#a45deb'; uploadArea.style.background = 'rgba(102, 126, 234, 0.15)';
+                uploadArea.style.background = 'rgba(102, 126, 234, 0.15)';            });
+            });
+tion() {
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = '#667eea'; uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+                uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';            });
+            });
+ener('drop', function(e) {
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#667eea';uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+                uploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+                
+                if (e.dataTransfer.files.length) {s = e.dataTransfer.files;
+                    fileInput.files = e.dataTransfer.files;   processFile();
+                    processFile(); }
+                }            });
+            });
+
+            // File input change event   fileInput.addEventListener('change', processFile);
+            fileInput.addEventListener('change', processFile);        }
+        }
+file
+        // Process the uploaded file
+        function processFile() {
+            console.log("Processing file");nput.files[0];
+            const file = fileInput.files[0];if (!file) return;
+            if (!file) return;
+            
+            // Show file name on upload area h3');
+            const uploadText = document.querySelector('.upload-text h3');uploadText.textContent = `File selected: ${file.name}`;
+            uploadText.textContent = `File selected: ${file.name}`;
+            
+            // Update button text and handleruploadBtn.textContent = 'Upload Patient Data';
+            uploadBtn.textContent = 'Upload Patient Data';
+            
+            // Remove previous click handlers and add a new one;
+            uploadBtn.removeEventListener('click', fileInput.click);   uploadBtn.addEventListener('click', uploadPatientData);
+            uploadBtn.addEventListener('click', uploadPatientData);        }
+        }
+server
+        // Upload patient data to the server
+        function uploadPatientData() {ata");
+            console.log("Uploading patient data"); fileInput.files[0];
+            const file = fileInput.files[0];
+            if (!file) {ification('Please select a file first', 'error');
+                showNotification('Please select a file first', 'error');   return;
+                return;}
+            }
+            
+            if (!file.name.endsWith('.csv')) {ification('Please upload a CSV file', 'error');
+                showNotification('Please upload a CSV file', 'error');   return;
+                return;}
+            }
+            
+            // Show loading spinneray = 'block';
+            loadingSpinner.style.display = 'block';
+            uploadBtn.disabled = true;uploadBtn.textContent = 'Uploading...';
+            uploadBtn.textContent = 'Uploading...';
+            
+            // Create form data);
+            const formData = new FormData();formData.append('file', file);
+            formData.append('file', file);
+            
+            // Send to server using hardcoded specialist IDpatients/${currentSpecialist.id}`, {
+            fetch(`/api/upload-patients/${currentSpecialist.id}`, {,
+                method: 'POST',  body: formData
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {   throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }  return response.json();
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showNotification(data.error, 'error');y = 'none';
+                    loadingSpinner.style.display = 'none';
+                    uploadBtn.disabled = false;tn.textContent = 'Upload Patient Data';
+                    uploadBtn.textContent = 'Upload Patient Data';   return;
+                    return;}
+                }
+                
+                // Success - proceed to patient selectionccessfully', 'success');
+                showNotification('Patients uploaded successfully', 'success');ne';
+                loadingSpinner.style.display = 'none';uploadCard.style.display = 'none';
+                uploadCard.style.display = 'none';
+                s and show selection screen
+                // Fetch patients and show selection screen  fetchPatients();
+                fetchPatients();
+            })
+            .catch(error => {: ' + error, 'error');
+                showNotification('Error uploading file: ' + error, 'error');y = 'none';
+                loadingSpinner.style.display = 'none';
+                uploadBtn.disabled = false; uploadBtn.textContent = 'Upload Patient Data';
+                uploadBtn.textContent = 'Upload Patient Data';   });
+            });        }
+        }
+current specialist
+        // Fetch patients for the current specialist
+        function fetchPatients() {
+            // Show loading spinnerloadingSpinner.style.display = 'block';
+            loadingSpinner.style.display = 'block';
+             ID
+            // Fetch patients from API using hardcoded specialist IDecialist/${currentSpecialist.id}`)
+            fetch(`/api/care-specialist/${currentSpecialist.id}`)
+            .then(response => {
+                if (!response.ok) {   throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }  return response.json();
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showNotification(data.error, 'error');Spinner.style.display = 'none';
+                    loadingSpinner.style.display = 'none';   return;
+                    return;}
+                }
+                
+                // Success - load patients
+                loadingSpinner.style.display = 'none';patientSelectionCard.style.display = 'block';
+                patientSelectionCard.style.display = 'block';
+                
+                // Get patient IDs from the API responselet patientIds = data.patient_ids || [];
+                let patientIds = data.patient_ids || [];
+                
+                if (patientIds.length === 0) {sGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">No patients found in the uploaded data. Please check your CSV format.</p>';
+                    patientsGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">No patients found in the uploaded data. Please check your CSV format.</p>';   return;
+                    return;}
+                }
+                opulate with patient cards
+                // Clear patients grid and populate with patient cardspatientsGrid.innerHTML = '';
+                patientsGrid.innerHTML = '';
+                ientIds.map(id => 
+                const loadPatientPromises = patientIds.map(id => /${id}`)
+                    fetch(`/api/patient/${id}`)
+                    .then(response => {
+                        if (!response.ok) {   throw new Error(`Error fetching patient ${id}: ${response.status}`);
+                            throw new Error(`Error fetching patient ${id}: ${response.status}`);
+                        }  return response.json();
+                        return response.json();
+                    })
+                    .catch(err => {error(`Error fetching patient ${id}:`, err);
+                        console.error(`Error fetching patient ${id}:`, err);
+                        return {
+                            id: id,'Unknown',
+                            diagnosis: 'Unknown',  error: true
+                            error: true  };
+                        };  })
+                    }));
+                );
+                ientPromises)
+                Promise.all(loadPatientPromises)
+                .then(patients => {
+                    patients.forEach(patient => {if (patient.error) return; // Skip patients with error
+                        if (patient.error) return; // Skip patients with error
+                        ent('div');
+                        const patientCard = document.createElement('div');
+                        patientCard.className = 'patient-card';patientCard.dataset.patientId = patient.id;
+                        patientCard.dataset.patientId = patient.id;
+                        
+                        // Get initials from patient idconst initials = `P${patient.id}`;
+                        const initials = `P${patient.id}`;
+                        
+                        patientCard.innerHTML = `
+                            <div class="patient-avatar">${initials}</div>
+                            <div class="patient-name">Patient #${patient.id}</div>
+                            <div class="patient-detail">Diagnosis: ${patient.diagnosis || 'Unknown'}</div>  <div class="patient-detail">Radius: ${patient.radius_mean?.toFixed(2) || 'N/A'}</div>
+                            <div class="patient-detail">Radius: ${patient.radius_mean?.toFixed(2) || 'N/A'}</div>`;
+                        `;
+                        
+                        patientCard.addEventListener('click', () => {
+                            // Remove selected class from all patient cardsrd').forEach(card => {
+                            document.querySelectorAll('.patient-card').forEach(card => { card.classList.remove('selected');
+                                card.classList.remove('selected');});
+                            });
+                            
+                            // Add selected class to this cardpatientCard.classList.add('selected');
+                            patientCard.classList.add('selected');
+                            
+                            // Enable analyze buttonanalyzePatientBtn.disabled = false;
+                            analyzePatientBtn.disabled = false;
+                            
+                            // Store selected patient selectedPatient = patient;
+                            selectedPatient = patient;});
+                        });
+                         patientsGrid.appendChild(patientCard);
+                        patientsGrid.appendChild(patientCard);});
+                    });
+                    
+                    if (patientsGrid.children.length === 0) {   patientsGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">No valid patients found in the uploaded data.</p>';
+                        patientsGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">No valid patients found in the uploaded data.</p>';  }
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error loading patients: ' + error, 'error'); patientsGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">Error loading patients.</p>';
+                    patientsGrid.innerHTML = '<p style="text-align: center; color: #7f8ea3;">Error loading patients.</p>';});
+                });
+                
+                // Handle analyze button click= () => {
+                analyzePatientBtn.onclick = () => {
+                    if (selectedPatient) {yzePatient(selectedPatient);
+                        analyzePatient(selectedPatient);
+                    } else {   showNotification('Please select a patient first', 'error');
+                        showNotification('Please select a patient first', 'error');  }
+                    }};
+                };
+                
+                // Scroll to patient selection  patientSelectionCard.scrollIntoView({ behavior: 'smooth' });
+                patientSelectionCard.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {alist data: ' + error, 'error');
+                showNotification('Error fetching specialist data: ' + error, 'error'); loadingSpinner.style.display = 'none';
+                loadingSpinner.style.display = 'none';   });
+            });        }
+        }
+
+        // Helper function to set default meter values when classification failsient) {
+        function setDefaultMeters() {
+            benignProbability.textContent = 'N/A';
+            malignantProbability.textContent = 'N/A';patientSelectionCard.style.display = 'none';
+        }
+
+        // Analyze the selected patienty/${patient.id}`)
+        function analyzePatient(patient) {
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';   throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            patientSelectionCard.style.display = 'none';
+              return response.json();
+            // Get classification data
+            fetch(`/api/classify/${patient.id}`) {
+            .then(response => {
+                if (!response.ok) {loadingSpinner.style.display = 'none';
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                }
+                return response.json();resultsSection.style.display = 'block';
+            })
+            .then(classificationData => {console.log("Classification data:", classificationData);
+                // Hide loading spinner
+                loadingSpinner.style.display = 'none';
+                ata.malignant !== undefined) {
+                // Show results section
+                resultsSection.style.display = 'block';const malignantValue = parseFloat(classificationData.malignant);
+                
+                console.log("Classification data:", classificationData);
+                
+                // Update classification with proper error handlingmalignantMeter.textContent = `${(malignantValue * 100).toFixed(1)}%`;
+                if (classificationData.benign !== undefined && classificationData.malignant !== undefined) {
+                    const benignValue = parseFloat(classificationData.benign);
+                    const malignantValue = parseFloat(classificationData.malignant);efaultMeters();
+                    
+                    if (!isNaN(benignValue) && !isNaN(malignantValue)) {
+                        benignProbability.textContent = `${(benignValue * 100).toFixed(1)}%`;/ If classification failed, show error
+                        malignantProbability.textContent = `${(malignantValue * 100).toFixed(1)}%`;Notification('Classification data not available', 'error');
+                    } else {
+                        showNotification('Invalid classification values received', 'error');
+                        setDefaultMeters();
+                    }/ Update patient features
+                } else {updatePatientFeatures(patient);
+                    // If classification failed, show error
+                    showNotification('Classification data not available', 'error');on features and classification
+                    setDefaultMeters();updateTreatmentInfo(patient, classificationData);
+                }
+                
+                // Update patient featurescreateDosageChart(patient);
+                updatePatientFeatures(patient);essChart(patient, classificationData);
+                ent, classificationData);
+                // Update treatment info based on features and classification
+                updateTreatmentInfo(patient, classificationData);
+                updateProgressTracker();
+                // Create charts
+                createDosageChart(patient);
+                createEffectivenessChart(patient, classificationData);addBackButton();
+                createSideEffectsChart(patient, classificationData);
+                ults
+                // Create progress trackerresultsSection.scrollIntoView({ behavior: 'smooth' });
+                updateProgressTracker();
+                
+                // Add back button  loadingSpinner.style.display = 'none';
+                addBackButton();ionCard.style.display = 'block';
+                ent: ' + error, 'error');
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {/ Helper function to set default meter values when classification fails
+                loadingSpinner.style.display = 'none';        function setDefaultMeters() {
+                patientSelectionCard.style.display = 'block';
+                showNotification('Error analyzing patient: ' + error, 'error');t = 'N/A';
+            });
+        }
+elper function to update patient features
+        // Helper function to update patient features) {
+        function updatePatientFeatures(patient) {
+            featuresGrid.innerHTML = '';   const priorityFeatures = [
+            const priorityFeatures = [                'radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean',
+                'radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean',, 'concavity_mean',
+                'smoothness_mean', 'compactness_mean', 'concavity_mean',mean', 'fractal_dimension_mean'
+                'concave_points_mean', 'symmetry_mean', 'fractal_dimension_mean'
+            ];
+            
+            // Add each feature to the grid
+            priorityFeatures.forEach(feature => {
+                if (patient[feature] !== undefined) {      const featureItem = document.createElement('div');
+                    const featureItem = document.createElement('div');        featureItem.className = 'feature-item';
+                    featureItem.className = 'feature-item';
+                    splay
+                    // Format feature name for displayce(/_/g, ' ')
+                    const displayName = feature.replace(/_/g, ' ')
+                        .split(' ')Case() + word.slice(1))
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))    .join(' ');
+                        .join(' ');
+                    
+                    featureItem.innerHTML = `"feature-name">${displayName}</div>
+                        <div class="feature-name">${displayName}</div>number' ? patient[feature].toFixed(4) : patient[feature]}</div>
+                        <div class="feature-value">${typeof patient[feature] === 'number' ? patient[feature].toFixed(4) : patient[feature]}</div>
+                    `;
+                    featureItem);
+                    featuresGrid.appendChild(featureItem);
+                }
+            });
+        }
+
+        // Helper function to add back buttonaddBackButton() {
+        function addBackButton() {(!document.getElementById('back-to-patients-btn')) {
+            if (!document.getElementById('back-to-patients-btn')) {       const backBtn = document.createElement('button');
+                const backBtn = document.createElement('button');                backBtn.id = 'back-to-patients-btn';
+                backBtn.id = 'back-to-patients-btn';secondary';
+                backBtn.className = 'btn btn-secondary';t = 'Back to Patient List';
+                backBtn.textContent = 'Back to Patient List';
+                backBtn.style.marginRight = '10px';
+                backBtn.onclick = function() {
+                    // Hide results';
+                    resultsSection.style.display = 'none';
+                    ry leaks
+                    // Clear charts to prevent memory leaks'';
+                    dosageChartEl.innerHTML = '';artEl.innerHTML = '';
+                    effectivenessChartEl.innerHTML = '';
+                    sideEffectsChartEl.innerHTML = '';
+                    
+                    // Show patient selectionsplay = 'block';
+                    patientSelectionCard.style.display = 'block';{ behavior: 'smooth' });
+                    patientSelectionCard.scrollIntoView({ behavior: 'smooth' });
+                };
+                utton
+                // Insert before the export button;
+                saveBtn.parentNode.insertBefore(backBtn, saveBtn);
+            }
+        }
+atient data and classification
+        // Update treatment information based on patient data and classification{
+        function updateTreatmentInfo(patient, classificationData) {/ Calculate dosage based on tumor characteristics
+            // Calculate dosage based on tumor characteristics   let baseDosage = 2.0;  // Base dosage in Gy
+            let baseDosage = 2.0;  // Base dosage in Gy            let sessionCount = 10;  // Base session count
+            let sessionCount = 10;  // Base session count
+            
+            // Adjust based on classification probabilities
+            if (classificationData.malignant !== undefined) { {
+                if (classificationData.malignant > 0.7) {ly malignant
+                    // More aggressive treatment for likely malignant        baseDosage += 0.6;
+                    baseDosage += 0.6;
+                    sessionCount += 5;) {
+                } else if (classificationData.malignant > 0.3) {ases
+                    // Moderate treatment for uncertain cases
+                    baseDosage += 0.3;
+                    sessionCount += 2;
+                }
+            }
+            adius (larger tumors need more treatment)
+            // Adjust based on tumor radius (larger tumors need more treatment)
+            if (patient.radius_mean) {f (patient.radius_mean > 15) {
+                if (patient.radius_mean > 15) {       baseDosage += 0.2;
+                    baseDosage += 0.2;        sessionCount += 2;
+                    sessionCount += 2;
+                } else if (patient.radius_mean < 10) {
+                    baseDosage -= 0.1;
+                    sessionCount -= 1;
+                }
+            }
+            
+            // Calculate total dosagesage * sessionCount;
+            const totalDosage = baseDosage * sessionCount;
+            / Update the DOM
+            // Update the DOMdosageValue.textContent = `${baseDosage.toFixed(1)} Gy`;
+            dosageValue.textContent = `${baseDosage.toFixed(1)} Gy`; = sessionCount;
+            sessionsValue.textContent = sessionCount;toFixed(1)} Gy`;
+            totalDosageValue.textContent = `${totalDosage.toFixed(1)} Gy`;
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            notification.textContent = message;   notification.className = `notification ${type}`;
+            notification.className = `notification ${type}`;            notification.classList.add('show');
+            notification.classList.add('show');
+            
+            setTimeout(() => {show');
+                notification.classList.remove('show');
+            }, 3000);
+        }
+he dashboard
+        // Function to reset the dashboard
+        function resetDashboard() {ll sections
+            // Hide all sections   resultsSection.style.display = 'none';
+            resultsSection.style.display = 'none';            patientSelectionCard.style.display = 'none';
+            patientSelectionCard.style.display = 'none';
+            
+            // Show upload cardplay = 'block';
+            uploadCard.style.display = 'block';
+            
+            // Clear chartsdosageChartEl.innerHTML = '';
+            dosageChartEl.innerHTML = '';l.innerHTML = '';
+            effectivenessChartEl.innerHTML = '';
+            sideEffectsChartEl.innerHTML = '';
+            nput
+            // Reset file input
+            fileInput.value = '';ector('.upload-text h3');
+            const uploadText = document.querySelector('.upload-text h3'); drop your CSV file';
+            uploadText.textContent = 'Drag and drop your CSV file';
+            ton
+            // Reset upload button = 'Select Patient Data';
+            uploadBtn.textContent = 'Select Patient Data';
+            uploadBtn.disabled = false;
+            // Reinitialize upload functionality
+            // Reinitialize upload functionality
+            initializeUpload();
+            
+            // Scroll to topwindow.scrollTo({top: 0, behavior: 'smooth'});
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+reate dosage distribution chart
+        // Create dosage distribution charteChart(patient) {
+        function createDosageChart(patient) {s chart
+            dosageChartEl.innerHTML = ''; // Clear previous chart   
+                        const ctx = document.createElement('canvas');
+            const ctx = document.createElement('canvas');tWidth;
+            ctx.width = dosageChartEl.offsetWidth;Height;
+            ctx.height = dosageChartEl.offsetHeight;
+            dosageChartEl.appendChild(ctx);
+            r of sessions
+            // Generate session labels based on the number of sessionsValue.textContent);
+            const sessionCount = parseInt(sessionsValue.textContent);onCount}, (_, i) => `Session ${i+1}`);
+            const labels = Array.from({length: sessionCount}, (_, i) => `Session ${i+1}`);
+            // Generate slightly varied dosage values based on the patient's optimal dosage
+            // Generate slightly varied dosage values based on the patient's optimal dosage
+            const baseDosage = parseFloat(dosageValue.textContent);
+            const data = Array.from({length: sessionCount}, () => {
+                // Random variation of ±0.2 Gy    return (baseDosage + (Math.random() * 0.4 - 0.2)).toFixed(1);
+                return (baseDosage + (Math.random() * 0.4 - 0.2)).toFixed(1);
+            });
+            
+            // Create chart
+            new Chart(ctx, {
+                type: 'bar', data: {
+                data: {        labels: labels,
+                    labels: labels,s: [{
+                    datasets: [{l: 'Optimized Dosage (Gy)',
+                        label: 'Optimized Dosage (Gy)',: data,
+                        data: data, backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                        backgroundColor: 'rgba(79, 172, 254, 0.7)',: 'rgba(79, 172, 254, 1)',
+                        borderColor: 'rgba(79, 172, 254, 1)',dth: 1
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,o: false,
+                    maintainAspectRatio: false,ugins: {
+                    plugins: {      legend: {
+                        legend: {  labels: {
+                            labels: {: '#a9c2ff'
+                                color: '#a9c2ff'
+                            }
+                        },{
+                        tooltip: {dColor: 'rgba(15, 15, 36, 0.9)',
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',odyColor: '#a9c2ff',
+                            bodyColor: '#a9c2ff',  borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',Width: 1
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {rue,
+                            beginAtZero: true,   grid: {
+                            grid: {          color: 'rgba(255, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.05)',,
+                            },ticks: {
+                            ticks: {3'
+                                color: '#7f8ea3'
+                            }
+                        },
+                        x: {
+                            grid: {, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.05)',,
+                            },  ticks: {
+                            ticks: {    color: '#7f8ea3'
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+atment effectiveness chart
+        // Create treatment effectiveness chartcreateEffectivenessChart(patient, classificationData) {
+        function createEffectivenessChart(patient, classificationData) {ectivenessChartEl.innerHTML = ''; // Clear previous chart
+            effectivenessChartEl.innerHTML = ''; // Clear previous chart   
+                        const ctx = document.createElement('canvas');
+            const ctx = document.createElement('canvas');fsetWidth;
+            ctx.width = effectivenessChartEl.offsetWidth;
+            ctx.height = effectivenessChartEl.offsetHeight;
+            effectivenessChartEl.appendChild(ctx);
+            r of sessions
+            // Generate session labels based on the number of sessionsextContent);
+            const sessionCount = parseInt(sessionsValue.textContent);}, (_, i) => `Session ${i+1}`);
+            const labels = Array.from({length: sessionCount}, (_, i) => `Session ${i+1}`);
+            // Generate effectiveness data based on malignancy probability
+            // Generate effectiveness data based on malignancy probability
+            let effectivenessData = [];
+            let maxEffectiveness = 100;
+            let curveType = 'medium';
+            
+            // Adjust curve based on classificationgnant !== undefined) {
+            if (classificationData.malignant !== undefined) {malignant > 0.7) {
+                if (classificationData.malignant > 0.7) {';
+                    curveType = 'slow';        maxEffectiveness = 85;
+                    maxEffectiveness = 85;nant < 0.3) {
+                } else if (classificationData.malignant < 0.3) {
+                    curveType = 'fast';
+                    maxEffectiveness = 98;
+                } else {
+                    curveType = 'medium';
+                    maxEffectiveness = 92;
+                }
+            }
+            he effectiveness curve
+            // Generate data points for the effectiveness curvent; i++) {
+            for (let i = 0; i < sessionCount; i++) {et progress = i / (sessionCount - 1);
+                let progress = i / (sessionCount - 1);   let value;
+                let value;    
+                
+                switch(curveType) {
+                    case 'fast': plateaus
+                        // Rapid initial response that plateauslue = Math.pow(progress, 0.5) * maxEffectiveness;
+                        value = Math.pow(progress, 0.5) * maxEffectiveness;        break;
+                        break;
+                    case 'slow':initial response that accelerates
+                        // Slow initial response that acceleratesfectiveness;
+                        value = Math.pow(progress, 1.5) * maxEffectiveness;
+                        break;um':
+                    case 'medium':ced response
+                        // Balanced response
+                        value = progress * maxEffectiveness;
+                        break;
+                    default:ogress * maxEffectiveness;
+                        value = progress * maxEffectiveness;
+                }
+                ata.push(Math.round(value));
+                effectivenessData.push(Math.round(value));
+            }
+            hart(ctx, {
+            new Chart(ctx, {type: 'line',
+                type: 'line',
+                data: {       labels: labels,
+                    labels: labels,        datasets: [{
+                    datasets: [{l: 'Tumor Reduction (%)',
+                        label: 'Tumor Reduction (%)', effectivenessData,
+                        data: effectivenessData, backgroundColor: 'rgba(142, 84, 233, 0.2)',
+                        backgroundColor: 'rgba(142, 84, 233, 0.2)',: 'rgba(142, 84, 233, 1)',
+                        borderColor: 'rgba(142, 84, 233, 1)',dth: 2,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,Ratio: false,
+                    maintainAspectRatio: false,ugins: {
+                    plugins: {      legend: {
+                        legend: {  labels: {
+                            labels: {: '#a9c2ff'
+                                color: '#a9c2ff'
+                            }
+                        },{
+                        tooltip: {dColor: 'rgba(15, 15, 36, 0.9)',
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',odyColor: '#a9c2ff',
+                            bodyColor: '#a9c2ff',  borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',Width: 1
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {rue,
+                            beginAtZero: true,   max: 100,
+                            max: 100,      grid: {
+                            grid: {   color: 'rgba(255, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.05)',},
+                            },
+                            ticks: {: '#7f8ea3'
+                                color: '#7f8ea3'
+                            }
+                        },
+                        x: {
+                            grid: {, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.05)',,
+                            },  ticks: {
+                            ticks: {    color: '#7f8ea3'
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+e effects chart
+        // Create side effects chartcreateSideEffectsChart(patient, classificationData) {
+        function createSideEffectsChart(patient, classificationData) {eEffectsChartEl.innerHTML = ''; // Clear previous chart
+            sideEffectsChartEl.innerHTML = ''; // Clear previous chart   
+                        const ctx = document.createElement('canvas');
+            const ctx = document.createElement('canvas');hartEl.offsetWidth;
+            ctx.width = sideEffectsChartEl.offsetWidth;
+            ctx.height = sideEffectsChartEl.offsetHeight;
+            sideEffectsChartEl.appendChild(ctx);
+            
+            // Base side effect values
+            let baseValues = {
+                standard: [75, 82, 60, 70, 55, 68],30]
+                optimized: [40, 35, 28, 32, 25, 30]};
+            };
+             classification
+            // Adjust based on classificationdefined) {
+            if (classificationData.malignant !== undefined) {0.7) {
+                if (classificationData.malignant > 0.7) {      // More aggressive treatment has higher side effects
+                    // More aggressive treatment has higher side effects        baseValues.standard = baseValues.standard.map(v => Math.min(v + 10, 95));
+                    baseValues.standard = baseValues.standard.map(v => Math.min(v + 10, 95));seValues.optimized.map(v => Math.min(v + 5, 60));
+                    baseValues.optimized = baseValues.optimized.map(v => Math.min(v + 5, 60));) {
+                } else if (classificationData.malignant < 0.3) {r side effects
+                    // Less aggressive treatment has fewer side effectsath.max(v - 10, 40));
+                    baseValues.standard = baseValues.standard.map(v => Math.max(v - 10, 40));;
+                    baseValues.optimized = baseValues.optimized.map(v => Math.max(v - 5, 15));
+                }
+            }
+            
+            // Create chart
+            new Chart(ctx, {ype: 'radar',
+                type: 'radar',   data: {
+                data: {        labels: ['Fatigue', 'Skin Reaction', 'Nausea', 'Hair Loss', 'Pain', 'Swelling'],
+                    labels: ['Fatigue', 'Skin Reaction', 'Nausea', 'Hair Loss', 'Pain', 'Swelling'],s: [
+                    datasets: [
+                        {bel: 'Standard Treatment',
+                            label: 'Standard Treatment',     data: baseValues.standard,
+                            data: baseValues.standard,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',derColor: 'rgba(255, 99, 132, 1)',
+                            borderColor: 'rgba(255, 99, 132, 1)',   borderWidth: 2,
+                            borderWidth: 2,255, 99, 132, 1)'
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                        },
+                        {
+                            label: 'Quantum Optimized',s.optimized,
+                            data: baseValues.optimized,
+                            backgroundColor: 'rgba(79, 172, 254, 0.2)',  borderColor: 'rgba(79, 172, 254, 1)',
+                            borderColor: 'rgba(79, 172, 254, 1)',   borderWidth: 2,
+                            borderWidth: 2,(79, 172, 254, 1)'
+                            pointBackgroundColor: 'rgba(79, 172, 254, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,ainAspectRatio: false,
+                    maintainAspectRatio: false,lugins: {
+                    plugins: {      legend: {
+                        legend: {  labels: {
+                            labels: {: '#a9c2ff'
+                                color: '#a9c2ff'
+                            }
+                        },{
+                        tooltip: {dColor: 'rgba(15, 15, 36, 0.9)',
+                            backgroundColor: 'rgba(15, 15, 36, 0.9)',
+                            titleColor: '#fff',odyColor: '#a9c2ff',
+                            bodyColor: '#a9c2ff',  borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',Width: 1
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {       color: 'rgba(255, 255, 255, 0.1)',
+                                color: 'rgba(255, 255, 255, 0.1)',      },
+                            },rid: {
+                            grid: {    color: 'rgba(255, 255, 255, 0.05)'
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            pointLabels: {  color: '#a9c2ff'
+                                color: '#a9c2ff'
+                            },
+                            ticks: {  backdropColor: 'transparent',
+                                backdropColor: 'transparent',f8ea3'
+                                color: '#7f8ea3'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+gress tracker
+        // Update progress trackerupdateProgressTracker() {
+        function updateProgressTracker() {st totalSessions = parseInt(sessionsValue.textContent);
+            const totalSessions = parseInt(sessionsValue.textContent);   // For demo purposes, we'll randomly set between 0-4 completed sessions
+            // For demo purposes, we'll randomly set between 0-4 completed sessions            const completedSessions = Math.floor(Math.random() * 5);
+            const completedSessions = Math.floor(Math.random() * 5);letedSessions / totalSessions) * 100;
+            const progress = (completedSessions / totalSessions) * 100;
+            
+            // Update progress bar
+            progressBar.style.width = `${progress}%`;
+            
+            // Update progress stats textprogressStats.textContent = `${completedSessions} of ${totalSessions} sessions completed`;
+            progressStats.textContent = `${completedSessions} of ${totalSessions} sessions completed`;
+            
+            // Create session dotsprogressSessions.innerHTML = ''; // Clear any existing dots
+            progressSessions.innerHTML = ''; // Clear any existing dotssions; i++) {
+            for (let i = 1; i <= totalSessions; i++) {
+                const dot = document.createElement('div');    dot.classList.add('session-dot');
+                dot.classList.add('session-dot');
+                
+                if (i <= completedSessions) {
+                    dot.classList.add('completed');
+                } else if (i === completedSessions + 1) {
+                    dot.classList.add('current');}
+                }
+                ${i}`);
+                dot.setAttribute('title', `Session ${i}`);
+                progressSessions.appendChild(dot);
+            }
+        }
+    </script>
+</body></html>
