@@ -13,7 +13,7 @@ The workflow is organized into four main stages:
 - **Input:** Biological cell parameters from patients.
 - **Purpose:** Gather necessary data features (e.g., size, texture, perimeter) for diagnosis.
   
-[Sources of Data](https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data
+[Source of Data](https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data
 )
 ---
 
@@ -31,14 +31,8 @@ The workflow is organized into four main stages:
 - **Process:**
   - Formulate the beam angle selection problem as a **QUBO** (Quadratic Unconstrained Binary Optimization) problem.
   - Solve using **Quantum Approximate Optimization Algorithm (QAOA)**.
-  - Perform classical post-processing to refine and validate the results.
+  - Classical post-processing to refine and validate the results.
 - **Purpose:** Find the optimal radiation beam angles for therapy, minimizing damage to healthy tissues while maximizing impact on the tumor.
-
----
-
-### 4. Recommended Treatment Plan
-- **Output:** Personalized, optimized treatment plan based on quantum-classical hybrid computation results.
-- **Goal:** Offer an effective and precise treatment recommendation to improve patient outcomes.
 
 ---
 
