@@ -27,8 +27,7 @@ The workflow is organized into four main stages:
 ---
 
 ### 3. Quantum Optimization for Beam Angle Selection
-- **Trigger:** Executed **only if cancer is detected**.
-- **Process:**
+
   - Formulate the beam angle selection problem as a **QUBO** (Quadratic Unconstrained Binary Optimization) problem.
   - Solve using **Quantum Approximate Optimization Algorithm (QAOA)**.
   - Classical post-processing to refine and validate the results.
