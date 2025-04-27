@@ -27,15 +27,15 @@ backend/
    curl -sSL https://install.python-poetry.org | python3 -
    ```
 
-2. **Install Poetry Shell Plugin** (for better environment management)
-   ```bash
-   poetry self add poetry-plugin-shell
-   ```
-
-3. **Clone the Repository and Navigate to Backend**
+2. **Clone the Repository and Navigate to Backend**
    ```bash
    cd backend
    ```
+
+3. **Activate Poetry Env**
+  ```bash
+  poetry env activate
+  ```
 
 4. **Install Dependencies**
    ```bash
