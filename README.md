@@ -5,17 +5,9 @@ QURAI delivers a full pipeline from cancer detection to treatment using patient 
 
 ---
 
-# Cancer Diagnosis and Treatment Optimization System
-
-## Overview
-
-This project presents an end-to-end system for assisting in cancer diagnosis and optimized treatment planning. It combines machine learning techniques for early cancer detection with quantum optimization methods to personalize and improve treatment strategies.
+## System Workflow
 
 The workflow is organized into four main stages:
-
----
-
-## System Workflow
 
 ### 1. Patient Cell Data Collection
 - **Input:** Biological cell parameters from patients.
