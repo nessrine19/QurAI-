@@ -57,21 +57,6 @@ The workflow is organized into four main stages:
 
 ---
 
-
-
-
-
-
-
-
-
-## 🛠 Technologies
-- Quantum Support Vector Machine (QSVM)  
-- Variational Quantum Classifier (VQC)  
-- Quantum Optimization (QAOA, AQC)  
-- Qiskit, Pennylane  
-- FLASH Radiotherapy Modeling
-
 ## 🌍 Impact
 Supports UN SDGs:  
 - **Good Health and Well-being (3)**  
