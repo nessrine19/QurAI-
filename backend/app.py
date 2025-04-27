@@ -139,7 +139,7 @@ def get_patient(patient_id):
         'concave_points_mean': patient.concave_points_mean,
         'symmetry_mean': patient.symmetry_mean,
         'fractal_dimension_mean': patient.fractal_dimension_mean,
-        'radius_se': patient.radius_se,
+        'radius error': patient.radius_se,
         'texture_se': patient.texture_se,
         'perimeter_se': patient.perimeter_se,
         'area_se': patient.area_se,
@@ -149,14 +149,14 @@ def get_patient(patient_id):
         'concave_points_se': patient.concave_points_se,
         'symmetry_se': patient.symmetry_se,
         'fractal_dimension_se': patient.fractal_dimension_se,
-        'radius_worst': patient.radius_worst,
+        'worst radius': patient.radius_worst,
         'texture_worst': patient.texture_worst,
         'perimeter_worst': patient.perimeter_worst,
-        'area_worst': patient.area_worst,
+        'worst area': patient.area_worst,
         'smoothness_worst': patient.smoothness_worst,
         'compactness_worst': patient.compactness_worst,
         'concavity_worst': patient.concavity_worst,
-        'concave_points_worst': patient.concave_points_worst,
+        'worst concave points': patient.concave_points_worst,
         'symmetry_worst': patient.symmetry_worst,
         'fractal_dimension_worst': patient.fractal_dimension_worst
     }
@@ -176,7 +176,7 @@ def get_care_specialist(specialist_id):
     }
     return jsonify(specialist_data), 200
 
-def preprocess(data_dict, scaler_path='scaler.pkl'):
+def preprocess(data_dict, scaler_path='../classification:/scaler.pkl'):
     """
     Given a dict of raw feature values, pick a fixed subset of features,
     standardize them using a pre‐fitted StandardScaler, and return a dict
@@ -184,10 +184,10 @@ def preprocess(data_dict, scaler_path='scaler.pkl'):
     """
     # 1) Define your selected features here
     selected_features = [
-        'radius_se',
-        'radius_worst',
-        'area_worst',
-        'concave points_mean'
+        'radius error',
+        'worst radius',
+        'worst area',
+        'worst concave points'
     ]
 
     # 2) Turn the input dict into a 1‐row DataFrame
@@ -204,11 +204,15 @@ def preprocess(data_dict, scaler_path='scaler.pkl'):
     return {feat: float(val)
             for feat, val in zip(selected_features, standardized.flatten())}
 
-def dummy_classification(preprocessed_data):
+def classification(preprocessed_data, model_path='../classification:/qsvc_model.pkl'):
     # This is a placeholder for the actual classification model
+    # breakpoint()
+    values = list(preprocessed_data.values())
+    model = joblib.load(model_path)
+    prediction = list(model.predict_proba(values)[0])
     return {
-        'malignant': 0.7,
-        'benign': 0.3
+        'malignant': float(prediction[0]),
+        'benign': float(prediction[1])
     }
 
 @app.route('/api/classify/<int:patient_id>', methods=['GET'])
@@ -218,6 +222,8 @@ def classify_patient(patient_id):
         return jsonify({'error': 'Patient not found'}), 404
     
     patient_data = {
+        'id': patient.id,
+        'diagnosis': patient.diagnosis,
         'radius_mean': patient.radius_mean,
         'texture_mean': patient.texture_mean,
         'perimeter_mean': patient.perimeter_mean,
@@ -228,7 +234,7 @@ def classify_patient(patient_id):
         'concave_points_mean': patient.concave_points_mean,
         'symmetry_mean': patient.symmetry_mean,
         'fractal_dimension_mean': patient.fractal_dimension_mean,
-        'radius_se': patient.radius_se,
+        'radius error': patient.radius_se,
         'texture_se': patient.texture_se,
         'perimeter_se': patient.perimeter_se,
         'area_se': patient.area_se,
@@ -238,21 +244,21 @@ def classify_patient(patient_id):
         'concave_points_se': patient.concave_points_se,
         'symmetry_se': patient.symmetry_se,
         'fractal_dimension_se': patient.fractal_dimension_se,
-        'radius_worst': patient.radius_worst,
+        'worst radius': patient.radius_worst,
         'texture_worst': patient.texture_worst,
         'perimeter_worst': patient.perimeter_worst,
-        'area_worst': patient.area_worst,
+        'worst area': patient.area_worst,
         'smoothness_worst': patient.smoothness_worst,
         'compactness_worst': patient.compactness_worst,
         'concavity_worst': patient.concavity_worst,
-        'concave_points_worst': patient.concave_points_worst,
+        'worst concave points': patient.concave_points_worst,
         'symmetry_worst': patient.symmetry_worst,
         'fractal_dimension_worst': patient.fractal_dimension_worst
     }
-    
+    # breakpoint()
     try:
         preprocessed_data = preprocess(patient_data)
-        classification_result = dummy_classification(preprocessed_data)
+        classification_result = classification(preprocessed_data)
         return jsonify(classification_result), 200
     except Exception as e:
         return jsonify({'error': f'Error during classification: {str(e)}'}), 500
