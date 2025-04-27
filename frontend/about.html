@@ -116,6 +116,36 @@
             margin: 0 auto;
         }
 
+        /* Team Group Picture */
+        .team-group-picture {
+            margin: 2rem auto 3rem;
+            text-align: center;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        .team-group-picture img {
+            width: 100%;
+            max-width: 1000px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(31, 38, 135, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .team-group-picture::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 20px);
+            max-width: 980px;
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(to bottom, transparent 80%, rgba(10, 10, 26, 1));
+            pointer-events: none;
+        }
+
         /* Card Styles */
         .card {
             background: rgba(15, 15, 36, 0.6);
@@ -162,7 +192,7 @@
 
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 2rem;
             margin-bottom: 3rem;
         }
@@ -295,9 +325,23 @@
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+        
         @media (max-width: 768px) {
             .team-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(2, 1fr);
                 gap: 1.5rem;
             }
             
@@ -312,6 +356,18 @@
             
             .section-title {
                 font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .member-avatar {
+                width: 180px;
+                height: 180px;
             }
         }
     </style>
@@ -339,9 +395,14 @@
             <p>Our interdisciplinary experts combine quantum physics, medical oncology, and artificial intelligence to revolutionize cancer treatment through personalized radiotherapy solutions.</p>
         </div>
         
+        <!-- Team Group Picture -->
+        <div class="team-group-picture">
+            <img src="assets/group_pic.jpg" alt="QurAI Team Group Photo - Our diverse team of experts collaborating on quantum radiotherapy solutions">
+        </div>
+        
         <!-- Team Section -->
         <div class="card">
-            <h3 class="section-title">Meet the Team</h3>
+            <h3 class="section-title">The Members</h3>
             <div class="team-grid">
                 <!-- Team Member 1 -->
                 <div class="team-member">
@@ -398,9 +459,7 @@
                         <a href="#" class="social-icon">X</a>
                     </div>
                 </div>
-            </div>
-            
-            <div class="team-grid">
+                
                 <!-- Team Member 5 -->
                 <div class="team-member">
                     <div class="member-avatar">
@@ -456,8 +515,7 @@
                         <a href="#" class="social-icon">X</a>
                     </div>
                 </div>
-            </div>
-            <div class="team-grid">
+                
                 <!-- Team Member 9 -->
                 <div class="team-member">
                     <div class="member-avatar">
@@ -513,8 +571,7 @@
                         <a href="#" class="social-icon">X</a>
                     </div>
                 </div>
-            </div>
-            <div class="team-grid">
+                
                 <!-- Team Member 13 -->
                 <div class="team-member">
                     <div class="member-avatar">
@@ -545,7 +602,7 @@
             </div>
         </div>
         
-        <!-- Technology Section -->
+        <!-- Technology Section
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Our Quantum Technology</h2>
@@ -560,7 +617,7 @@
                 
                 <p>Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio. Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci.</p>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Import Scripts -->
