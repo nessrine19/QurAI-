@@ -1,31 +1,40 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_cors import CORS
-import pandas as pd
-import os
-from dotenv import load_dotenv
-import joblib
+# Import necessary libraries
+from flask import Flask, request, jsonify  # Flask framework for web API
+from flask_sqlalchemy import SQLAlchemy    # SQLAlchemy for database ORM
+from flask_migrate import Migrate          # Database migration tool
+from flask_cors import CORS                # Cross-Origin Resource Sharing support
+import pandas as pd                        # Data manipulation library
+import os                                  # Operating system interface
+from dotenv import load_dotenv            # Environment variable management
+import joblib                             # Model persistence
 
+# Load environment variables from .env file
 load_dotenv()
 
+# Initialize Flask application
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all routes
+
+# Configure database connection using environment variable
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Initialize database and migration objects
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Define CareSpecialist model for database
 class CareSpecialist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     patients = db.relationship('Patient', backref='care_specialist', lazy=True)
 
+# Define Patient model with all required medical features
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     diagnosis = db.Column(db.String(50))
+    # Mean features
     radius_mean = db.Column(db.Float)
     texture_mean = db.Column(db.Float)
     perimeter_mean = db.Column(db.Float)
@@ -36,6 +45,7 @@ class Patient(db.Model):
     concave_points_mean = db.Column(db.Float)
     symmetry_mean = db.Column(db.Float)
     fractal_dimension_mean = db.Column(db.Float)
+    # Standard error features
     radius_se = db.Column(db.Float)
     texture_se = db.Column(db.Float)
     perimeter_se = db.Column(db.Float)
@@ -46,6 +56,7 @@ class Patient(db.Model):
     concave_points_se = db.Column(db.Float)
     symmetry_se = db.Column(db.Float)
     fractal_dimension_se = db.Column(db.Float)
+    # Worst features
     radius_worst = db.Column(db.Float)
     texture_worst = db.Column(db.Float)
     perimeter_worst = db.Column(db.Float)
@@ -56,8 +67,10 @@ class Patient(db.Model):
     concave_points_worst = db.Column(db.Float)
     symmetry_worst = db.Column(db.Float)
     fractal_dimension_worst = db.Column(db.Float)
+    # Foreign key relationship to care specialist
     care_specialist_id = db.Column(db.Integer, db.ForeignKey('care_specialist.id'), nullable=False)
 
+# API endpoint to create a new care specialist
 @app.route('/api/care-specialist', methods=['POST'])
 def create_care_specialist():
     data = request.get_json()
@@ -69,6 +82,7 @@ def create_care_specialist():
     db.session.commit()
     return jsonify({'id': new_specialist.id, 'name': new_specialist.name, 'email': new_specialist.email}), 201
 
+# API endpoint to upload patient data via CSV file
 @app.route('/api/upload-patients/<int:specialist_id>', methods=['POST'])
 def upload_patients(specialist_id):
     if 'file' not in request.files:
@@ -79,6 +93,7 @@ def upload_patients(specialist_id):
         return jsonify({'error': 'File must be a CSV'}), 400
 
     try:
+        # Read and validate CSV file
         df = pd.read_csv(file)
         required_columns = [
             'id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimeter_mean',
@@ -91,13 +106,15 @@ def upload_patients(specialist_id):
             'concave_points_worst', 'symmetry_worst', 'fractal_dimension_worst'
         ]
         
+        # Validate required columns
         if not all(col in df.columns for col in required_columns):
             return jsonify({'error': 'CSV missing required columns'}), 400
 
-        # Check for duplicate IDs in the current upload
+        # Check for duplicate patient IDs
         if len(df['id'].unique()) != len(df):
             return jsonify({'error': 'Duplicate patient IDs found in upload'}), 400
 
+        # Process each row in the CSV
         for _, row in df.iterrows():
             patient = Patient.query.get(row['id'])
             if patient:
@@ -120,12 +137,14 @@ def upload_patients(specialist_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+# API endpoint to get patient details
 @app.route('/api/patient/<int:patient_id>', methods=['GET'])
 def get_patient(patient_id):
     patient = Patient.query.get(patient_id)
     if not patient:
         return jsonify({'error': 'Patient not found'}), 404
     
+    # Format patient data for response
     patient_data = {
         'id': patient.id,
         'diagnosis': patient.diagnosis,
@@ -162,6 +181,7 @@ def get_patient(patient_id):
     }
     return jsonify(patient_data), 200
 
+# API endpoint to get care specialist details
 @app.route('/api/care-specialist/<int:specialist_id>', methods=['GET'])
 def get_care_specialist(specialist_id):
     specialist = CareSpecialist.query.get(specialist_id)
@@ -176,13 +196,16 @@ def get_care_specialist(specialist_id):
     }
     return jsonify(specialist_data), 200
 
+# Preprocess patient data for classification
 def preprocess(data_dict, scaler_path='../classification:/scaler.pkl'):
     """
-    Given a dict of raw feature values, pick a fixed subset of features,
-    standardize them using a pre‐fitted StandardScaler, and return a dict
-    of the scaled values.
+    Preprocess patient data for classification:
+    1. Select relevant features
+    2. Convert to DataFrame
+    3. Standardize using pre-fitted scaler
+    4. Return standardized values
     """
-    # 1) Define your selected features here
+    # Define selected features for classification
     selected_features = [
         'radius error',
         'worst radius',
@@ -190,23 +213,28 @@ def preprocess(data_dict, scaler_path='../classification:/scaler.pkl'):
         'worst concave points'
     ]
 
-    # 2) Turn the input dict into a 1‐row DataFrame
+    # Convert input dict to DataFrame
     df = pd.DataFrame([data_dict])
 
-    # 3) Select & coerce to numeric
+    # Select and convert features to numeric
     data_sel = df[selected_features].apply(pd.to_numeric, errors='coerce')
 
-    # 4) Load your fitted scaler and apply it
+    # Load and apply pre-fitted scaler
     scaler = joblib.load(scaler_path)
     standardized = scaler.transform(data_sel)
 
-    # 5) Return a flat dict of feature → scaled value
+    # Return standardized features as dict
     return {feat: float(val)
             for feat, val in zip(selected_features, standardized.flatten())}
 
+# Perform classification using preprocessed data
 def classification(preprocessed_data, model_path='../classification:/qsvc_model.pkl'):
-    # This is a placeholder for the actual classification model
-    # breakpoint()
+    """
+    Classify patient data using quantum support vector classifier:
+    1. Load pre-trained model
+    2. Make prediction
+    3. Return probabilities for each class
+    """
     values = list(preprocessed_data.values())
     model = joblib.load(model_path)
     prediction = list(model.predict_proba(values)[0])
@@ -215,12 +243,14 @@ def classification(preprocessed_data, model_path='../classification:/qsvc_model.
         'benign': float(prediction[1])
     }
 
+# API endpoint for patient classification
 @app.route('/api/classify/<int:patient_id>', methods=['GET'])
 def classify_patient(patient_id):
     patient = Patient.query.get(patient_id)
     if not patient:
         return jsonify({'error': 'Patient not found'}), 404
     
+    # Format patient data for classification
     patient_data = {
         'id': patient.id,
         'diagnosis': patient.diagnosis,
@@ -255,20 +285,23 @@ def classify_patient(patient_id):
         'symmetry_worst': patient.symmetry_worst,
         'fractal_dimension_worst': patient.fractal_dimension_worst
     }
-    # breakpoint()
+    
     try:
+        # Preprocess and classify patient data
         preprocessed_data = preprocess(patient_data)
         classification_result = classification(preprocessed_data)
         return jsonify(classification_result), 200
     except Exception as e:
         return jsonify({'error': f'Error during classification: {str(e)}'}), 500
 
+# Health check endpoint
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """
-    Simple health check endpoint that returns 'ready' if the API is running
+    Simple health check endpoint to verify API is running
     """
     return jsonify({'status': 'ready'}), 200
 
+# Run the application
 if __name__ == '__main__':
     app.run(debug=True) 
